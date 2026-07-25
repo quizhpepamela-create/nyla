@@ -37,7 +37,7 @@ const wrapper = (title: string, bodyHtml: string) => `
   </div>
 `;
 
-export async function sendWelcomeEmail(to: string, name: string, role: "STUDENT" | "ENTREPRENEUR") {
+export async function sendWelcomeEmail(to: string, name: string, role: string) {
   const roleText = role === "STUDENT" ? "estudiante" : "emprendedor";
   const html = wrapper(
     `¡Bienvenido a NYLA, ${name}!`,

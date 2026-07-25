@@ -35,6 +35,9 @@ model User {
   entrepreneurProjects Project[]     @relation("EntrepreneurProjects")
   assignedProjects     Project[]     @relation("StudentProjects")
   applications         Application[]
+
+  sentMessages         Message[]     @relation("SentMessages")
+  receivedMessages     Message[]     @relation("ReceivedMessages")
 }
 
 model StudentProfile {
@@ -138,4 +141,18 @@ model Application {
   createdAt     DateTime          @default(now())
 
   @@unique([projectId, studentId])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  recipientId String
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  content     String
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([senderId, recipientId])
+  @@index([recipientId, senderId])
 }

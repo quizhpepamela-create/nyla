@@ -9,6 +9,7 @@ import profileRouter from "./src/server/routes/profile";
 import statsRouter from "./src/server/routes/stats";
 import projectsRouter from "./src/server/routes/projects";
 import paymentsRouter from "./src/server/routes/payments";
+import messagesRouter from "./src/server/routes/messages";
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +32,7 @@ app.use("/api/profile", profileRouter);
 app.use("/api/stats", statsRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/payments", paymentsRouter);
+app.use("/api/messages", messagesRouter);
 
 // Helper for lazy loading Google GenAI
 let aiClient: GoogleGenAI | null = null;

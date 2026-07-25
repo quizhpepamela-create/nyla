@@ -1,122 +1,109 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Phone, Video, Info, Paperclip, Image, Mic, Search, ChevronRight, Check, X, FileText, Download, HelpCircle, Shield, AlertTriangle } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Search, Check, FileText, AlertTriangle, Loader2 } from 'lucide-react';
 import { ViewState, ChatThread, Message } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface ChatPageProps {
   setView: (view: ViewState) => void;
 }
 
-export default function ChatPage({ setView }: ChatPageProps) {
-  const [threads, setThreads] = useState<ChatThread[]>([
-    {
-      id: 'nyla-ai',
-      name: 'NYLA AI Guide',
-      avatar: '🚀',
-      isAI: true,
-      online: true,
-      lastMessage: 'He generado la propuesta de contrato para el desarrollador React.',
-      time: 'Ahora',
-      messages: [
-        {
-          id: 'm1',
-          role: 'model',
-          content: 'Hola, soy tu guía de NYLA. He analizado tu perfil y los requerimientos de tu última postulación. ¿En qué puedo ayudarte hoy?',
-          timestamp: '10:00 AM'
-        },
-        {
-          id: 'm2',
-          role: 'user',
-          content: 'Por favor, genera un contrato estándar para el desarrollador frontend del proyecto Fintech. El presupuesto es de $84.32 USD con entrega en 8 horas de trabajo (tarifa estudiantil de $10.54/hora).',
-          timestamp: '10:01 AM'
-        },
-        {
-          id: 'm3',
-          role: 'model',
-          content: 'Entendido. He redactado una propuesta de Contrato de Colaboración Digital formal para el desarrollo frontend. Revisa los términos y confírmalos.',
-          timestamp: '10:01 AM',
-          isContract: true,
-          contractData: {
-            id: '294',
-            parties: 'NYLA Corp & Estudiante',
-            service: 'Desarrollo Frontend React (Fintech App)',
-            amount: '$84.32 USD',
-            duration: '8 Horas de Trabajo',
-            status: 'pending'
-          }
-        }
-      ]
-    },
-    {
-      id: 'elena-v',
-      name: 'Elena Valery',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCg-sYd74mPtldBVLjpMlInRZpS-FvyONN-uEnSbU5vVhIMzgq1_nliHBmaDbOMJD6R0Vtrp-71v-t-N0l2Fi3itvfMNYHSX8XBlLq41trEqzFB1up1u-kbIYaqYU2O0R1iiffM2KBBBkS1q8nIZwwdlFTFReP6Uj4IxFhJa1GZB6pM4j75ZCuovgwg7vTUP_aJAqltVKtJArj5AayWm1kmDLUGpqFUOP2ekK9iac2W2wn32zwj-SFSIP6O_CM7qWrOKFPY2SIBlZn',
-      isAI: false,
-      online: true,
-      lastMessage: '¡Hola! Encantada de conocerte, acabo de ver tu mensaje.',
-      time: '12m',
-      messages: [
-        {
-          id: 'ev1',
-          role: 'user',
-          content: 'Hola Elena, vi tu excelente portafolio en NYLA Portal. ¿Estarías disponible para conversar sobre una startup Fintech?',
-          timestamp: '10:15 AM'
-        },
-        {
-          id: 'ev2',
-          role: 'model',
-          content: '¡Hola! Encantada de conocerte, acabo de ver tu mensaje. Claro, me interesa mucho el ámbito Fintech. ¿Cuándo te vendría bien conversar?',
-          timestamp: '10:17 AM'
-        }
-      ]
-    },
-    {
-      id: 'prof-julian',
-      name: 'Prof. Julian Ricci',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDPM_EOkdz_yQmQF_D9wPJtQzWYtEm7jgBzRKIL886hCRRp01BICSyxOAk9SpvfZEbKIPvW7zkUvaB5LndbPDqMsFRZaY6Wmwh06_meJ8x1vrRVs2HRJdt6BEBy6VMrLmRRB3fLs0c9vekw3kJlbxosJUBdxFa3N02of0kM-EPgeWFpntsFgoXAly-fsBzqACZX90eq7_1IjKl8umoDxLXLmpFN6Ebk5vo7OmPcZOmYG_JwBE4B4LbXfvwiPvTvpVr7fTI-W--KSsPu',
-      isAI: false,
-      online: true,
-      lastMessage: 'Hola, revisa los requisitos del proyecto.',
-      time: '1h',
-      messages: [
-        {
-          id: 'pj1',
-          role: 'model',
-          content: 'Hola, recuerda revisar el entregable final del módulo de analítica antes de subirlo.',
-          timestamp: '09:00 AM'
-        }
-      ]
-    },
-    {
-      id: 'eq-backend',
-      name: 'Equipo Backend',
-      avatar: '💻',
-      isAI: false,
-      online: false,
-      lastMessage: 'La API de autenticación está lista para pruebas.',
-      time: 'Ayer',
-      messages: [
-        {
-          id: 'eqb1',
-          role: 'model',
-          content: 'Hemos desplegado el entorno staging. La API de autenticación está lista para pruebas.',
-          timestamp: 'Ayer 5:30 PM'
-        }
-      ]
-    }
-  ]);
+interface Contact {
+  id: string;
+  name: string;
+  role: 'STUDENT' | 'ENTREPRENEUR';
+  lastMessage: string | null;
+  lastMessageAt: string | null;
+  unreadCount: number;
+}
 
-  const [activeThreadId, setActiveThreadId] = useState('nyla-ai');
+const AI_THREAD_ID = 'nyla-ai';
+
+function buildAiThread(): ChatThread {
+  return {
+    id: AI_THREAD_ID,
+    name: 'NYLA AI Guide',
+    avatar: '🚀',
+    isAI: true,
+    online: true,
+    lastMessage: 'Pregúntame sobre registro, pagos, tarifas o cómo funciona NYLA.',
+    time: 'Ahora',
+    messages: [
+      {
+        id: 'm1',
+        role: 'model',
+        content: 'Hola, soy tu guía de NYLA. Puedo ayudarte con el registro, cómo funciona el match, métodos de pago, tarifas o soporte. ¿En qué puedo ayudarte hoy?',
+        timestamp: '10:00 AM',
+      },
+    ],
+  };
+}
+
+export default function ChatPage({ setView }: ChatPageProps) {
+  const { user } = useAuth();
+  const [aiThread, setAiThread] = useState<ChatThread>(buildAiThread());
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [contactMessages, setContactMessages] = useState<Record<string, Message[]>>({});
+  const [loadingContacts, setLoadingContacts] = useState(true);
+  const [activeThreadId, setActiveThreadId] = useState(AI_THREAD_ID);
   const [searchInput, setSearchInput] = useState('');
   const [msgInput, setMsgInput] = useState('');
   const [typing, setTyping] = useState(false);
-  const [editingContractId, setEditingContractId] = useState<string | null>(null);
-  const [editAmount, setEditAmount] = useState('$84.32 USD');
-  const [editDuration, setEditDuration] = useState('8 Horas de Trabajo');
+  const [sending, setSending] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const activeThread = threads.find(t => t.id === activeThreadId) || threads[0];
+  const loadContacts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/messages/contacts', { credentials: 'include' });
+      const data = await res.json();
+      if (res.ok) setContacts(data.contacts);
+    } finally {
+      setLoadingContacts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadContacts();
+    const interval = setInterval(loadContacts, 15000);
+    return () => clearInterval(interval);
+  }, [loadContacts]);
+
+  const loadThreadMessages = useCallback(async (contactId: string) => {
+    const res = await fetch(`/api/messages/${contactId}`, { credentials: 'include' });
+    const data = await res.json();
+    if (!res.ok) return;
+    const formatted: Message[] = data.messages.map((m: any) => ({
+      id: m.id,
+      role: m.senderId === user?.id ? 'user' : 'model',
+      content: m.content,
+      timestamp: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    }));
+    setContactMessages(prev => ({ ...prev, [contactId]: formatted }));
+    setContacts(prev => prev.map(c => (c.id === contactId ? { ...c, unreadCount: 0 } : c)));
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (activeThreadId === AI_THREAD_ID) return;
+    loadThreadMessages(activeThreadId);
+    const interval = setInterval(() => loadThreadMessages(activeThreadId), 4000);
+    return () => clearInterval(interval);
+  }, [activeThreadId, loadThreadMessages]);
+
+  const isAIActive = activeThreadId === AI_THREAD_ID;
+  const activeContact = contacts.find(c => c.id === activeThreadId) || null;
+
+  const activeThread: ChatThread = isAIActive
+    ? aiThread
+    : {
+        id: activeContact?.id ?? '',
+        name: activeContact?.name ?? '',
+        avatar: activeContact?.role === 'STUDENT' ? '🎓' : '🏢',
+        isAI: false,
+        online: false,
+        lastMessage: activeContact?.lastMessage ?? '',
+        time: '',
+        messages: contactMessages[activeThreadId] ?? [],
+      };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -127,201 +114,104 @@ export default function ChatPage({ setView }: ChatPageProps) {
     if (!msgInput.trim()) return;
 
     const userText = msgInput;
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    // Append user message
-    const userMsg: Message = {
-      id: Math.random().toString(),
-      role: 'user',
-      content: userText,
-      timestamp
-    };
-
-    setThreads(prev => prev.map(t => {
-      if (t.id === activeThreadId) {
-        return {
-          ...t,
-          lastMessage: userText,
-          time: 'Ahora',
-          messages: [...t.messages, userMsg]
-        };
-      }
-      return t;
-    }));
-
     setMsgInput('');
 
-    if (activeThread.isAI) {
+    if (isAIActive) {
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const userMsg: Message = { id: Math.random().toString(), role: 'user', content: userText, timestamp };
+      setAiThread(prev => ({ ...prev, lastMessage: userText, time: 'Ahora', messages: [...prev.messages, userMsg] }));
       setTyping(true);
-
       try {
-        // Send previous conversation context to the server
-        const contextMessages = activeThread.messages.concat(userMsg).map(m => ({
-          role: m.role,
-          content: m.content
-        }));
-
+        const contextMessages = aiThread.messages.concat(userMsg).map(m => ({ role: m.role, content: m.content }));
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: contextMessages })
+          body: JSON.stringify({ messages: contextMessages }),
         });
         const data = await response.json();
-
         const botMsg: Message = {
           id: Math.random().toString(),
           role: 'model',
-          content: data.text || 'He recibido tu solicitud. ¿Te gustaría generar una propuesta de contrato o buscar más proyectos?',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          content: data.text || 'He recibido tu solicitud.',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
-
-        // Check if the bot message is structured to suggest a contract
-        const textLower = (data.text || '').toLowerCase();
-        if (textLower.includes('contrato de colaboración') || textLower.includes('partes:') || textLower.includes('monto:')) {
-          botMsg.isContract = true;
-          botMsg.contractData = {
-            id: Math.floor(100 + Math.random() * 900).toString(),
-            parties: 'NYLA Corp & Estudiante',
-            service: 'Desarrollo de Software / UX',
-            amount: '$84.32 USD',
-            duration: '8 Horas de Trabajo',
-            status: 'pending'
-          };
-        }
-
-        setThreads(prev => prev.map(t => {
-          if (t.id === activeThreadId) {
-            return {
-              ...t,
-              lastMessage: botMsg.content,
-              time: 'Ahora',
-              messages: [...t.messages, botMsg]
-            };
-          }
-          return t;
-        }));
-
+        setAiThread(prev => ({ ...prev, lastMessage: botMsg.content, time: 'Ahora', messages: [...prev.messages, botMsg] }));
       } catch (err) {
         console.error('Error generating AI response:', err);
         const fallbackMsg: Message = {
           id: Math.random().toString(),
           role: 'model',
-          content: 'Lo siento, en este momento tengo dificultades para conectar con el servidor. ¿Deseas firmar la propuesta de contrato existente?',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          content: 'Lo siento, en este momento tengo dificultades para conectar con el servidor.',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
-        setThreads(prev => prev.map(t => {
-          if (t.id === activeThreadId) {
-            return { ...t, messages: [...t.messages, fallbackMsg] };
-          }
-          return t;
-        }));
+        setAiThread(prev => ({ ...prev, messages: [...prev.messages, fallbackMsg] }));
       } finally {
         setTyping(false);
       }
-    } else {
-      // Simulate contact response
-      setTyping(true);
-      setTimeout(() => {
-        const replyMsg: Message = {
-          id: Math.random().toString(),
-          role: 'model',
-          content: `¡Entendido! Me parece genial tu propuesta. Podemos agendar una llamada de 15 minutos mañana para alinear detalles.`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-        setThreads(prev => prev.map(t => {
-          if (t.id === activeThreadId) {
-            return {
-              ...t,
-              lastMessage: replyMsg.content,
-              time: 'Ahora',
-              messages: [...t.messages, replyMsg]
-            };
-          }
-          return t;
-        }));
-        setTyping(false);
-      }, 1500);
+      return;
+    }
+
+    // Real message to a real contact
+    setSending(true);
+    const optimistic: Message = {
+      id: Math.random().toString(),
+      role: 'user',
+      content: userText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setContactMessages(prev => ({ ...prev, [activeThreadId]: [...(prev[activeThreadId] ?? []), optimistic] }));
+    try {
+      const res = await fetch(`/api/messages/${activeThreadId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ content: userText }),
+      });
+      if (res.ok) {
+        loadThreadMessages(activeThreadId);
+        loadContacts();
+      }
+    } finally {
+      setSending(false);
     }
   };
 
-  const handleAcceptContract = (msgId: string) => {
-    let approvedAmount = 160;
-    setThreads(prev => prev.map(t => {
-      if (t.id === activeThreadId) {
-        const updatedMsgs = t.messages.map(m => {
-          if (m.id === msgId && m.contractData) {
-            const parsed = parseFloat(m.contractData.amount.replace(/[^0-9.]/g, ''));
-            if (!isNaN(parsed) && parsed > 0) {
-              approvedAmount = parsed;
-            }
-            return {
-              ...m,
-              contractData: {
-                ...m.contractData,
-                status: 'accepted' as const
-              }
-            };
-          }
-          return m;
-        });
-        return { ...t, messages: updatedMsgs };
-      }
-      return t;
-    }));
-
-  };
-
-  const handleSaveEditContract = (msgId: string) => {
-    setThreads(prev => prev.map(t => {
-      if (t.id === activeThreadId) {
-        const updatedMsgs = t.messages.map(m => {
-          if (m.id === msgId && m.contractData) {
-            return {
-              ...m,
-              contractData: {
-                ...m.contractData,
-                amount: editAmount,
-                duration: editDuration,
-                status: 'modified' as const
-              }
-            };
-          }
-          return m;
-        });
-        return { ...t, messages: updatedMsgs };
-      }
-      return t;
-    }));
-    setEditingContractId(null);
-  };
-
-  const filteredThreads = threads.filter(t => 
-    t.name.toLowerCase().includes(searchInput.toLowerCase())
-  );
+  const filteredThreads = [
+    { id: AI_THREAD_ID, name: aiThread.name, avatar: aiThread.avatar, isAI: true, lastMessage: aiThread.lastMessage, time: aiThread.time, unreadCount: 0 },
+    ...contacts.map(c => ({
+      id: c.id,
+      name: c.name,
+      avatar: c.role === 'STUDENT' ? '🎓' : '🏢',
+      isAI: false,
+      lastMessage: c.lastMessage || (c.role === 'STUDENT' ? 'Estudiante — inicia la conversación' : 'Emprendedor — inicia la conversación'),
+      time: c.lastMessageAt ? new Date(c.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+      unreadCount: c.unreadCount,
+    })),
+  ].filter(t => t.name.toLowerCase().includes(searchInput.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-editorial-bg pb-24 md:pb-8 flex flex-col">
-      
+
       {/* Page Title */}
       <div className="mb-8 pb-6 border-b border-editorial-border">
-        <button 
+        <button
           onClick={() => setView('landing')}
           className="mb-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-editorial-muted hover:text-editorial-text transition-colors bg-white border border-editorial-border px-3 py-1.5 rounded-full cursor-pointer"
         >
           ← Volver a la Portada (Inicio)
         </button>
         <h2 className="text-3xl md:text-5xl font-serif font-black text-editorial-text tracking-tight">Mensajería y Asistente AI</h2>
-        <p className="text-sm text-editorial-muted mt-1">Colabora con startups, habla con mentores y redacta contratos con ayuda de la IA.</p>
+        <p className="text-sm text-editorial-muted mt-1">Chatea con estudiantes y emprendedores con quienes tienes un proyecto en común, o pide ayuda a la IA.</p>
       </div>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 border border-editorial-border rounded-[32px] bg-editorial-bg shadow-none overflow-hidden min-h-[580px]">
-        
+
         {/* Conversations Column */}
         <div className="border-r border-editorial-border flex flex-col bg-editorial-bg">
           <div className="p-4 border-b border-editorial-border">
             <div className="relative">
               <Search className="w-4 h-4 text-editorial-muted absolute left-3 top-1/2 -translate-y-1/2" />
-              <input 
+              <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
@@ -337,30 +227,23 @@ export default function ChatPage({ setView }: ChatPageProps) {
               return (
                 <button
                   key={t.id}
-                  onClick={() => {
-                    setActiveThreadId(t.id);
-                    setEditingContractId(null);
-                  }}
+                  onClick={() => setActiveThreadId(t.id)}
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all cursor-pointer ${
-                    isActive 
-                      ? 'bg-editorial-text text-editorial-bg shadow-none' 
+                    isActive
+                      ? 'bg-editorial-text text-editorial-bg shadow-none'
                       : 'hover:bg-editorial-light/60'
                   }`}
                 >
                   <div className="relative">
-                    {t.isAI ? (
-                      <div className={`w-11 h-11 rounded-full flex items-center justify-center text-lg shrink-0 ${
-                        isActive ? 'bg-editorial-bg text-editorial-text' : 'bg-editorial-text text-editorial-bg'
-                      }`}>
-                        {t.avatar}
-                      </div>
-                    ) : (
-                      <div className="w-11 h-11 rounded-full overflow-hidden border border-editorial-border bg-white shrink-0">
-                        <img className="w-full h-full object-cover" referrerPolicy="no-referrer" src={t.avatar} alt={t.name} />
-                      </div>
-                    )}
-                    {t.online && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border border-editorial-bg"></span>
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center text-lg shrink-0 ${
+                      isActive ? 'bg-editorial-bg text-editorial-text' : 'bg-editorial-text text-editorial-bg'
+                    }`}>
+                      {t.avatar}
+                    </div>
+                    {t.unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                        {t.unreadCount}
+                      </span>
                     )}
                   </div>
 
@@ -378,6 +261,11 @@ export default function ChatPage({ setView }: ChatPageProps) {
                 </button>
               );
             })}
+            {!loadingContacts && contacts.length === 0 && (
+              <p className="text-[11px] text-editorial-muted p-4 leading-relaxed">
+                Aún no tienes conversaciones. Cuando te postules a un proyecto, o un estudiante se postule al tuyo, podrás chatear aquí.
+              </p>
+            )}
           </div>
         </div>
 
@@ -386,52 +274,37 @@ export default function ChatPage({ setView }: ChatPageProps) {
           {/* Active Chat Header */}
           <div className="p-4 border-b border-editorial-border flex justify-between items-center bg-editorial-bg/25">
             <div className="flex items-center gap-3">
-              {activeThread.isAI ? (
-                <div className="w-10 h-10 rounded-full bg-editorial-text text-editorial-bg flex items-center justify-center text-base shrink-0">
-                  {activeThread.avatar}
-                </div>
-              ) : (
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-editorial-border bg-editorial-bg shrink-0">
-                  <img className="w-full h-full object-cover" referrerPolicy="no-referrer" src={activeThread.avatar} alt={activeThread.name} />
-                </div>
-              )}
+              <div className="w-10 h-10 rounded-full bg-editorial-text text-editorial-bg flex items-center justify-center text-base shrink-0">
+                {activeThread.avatar}
+              </div>
               <div>
                 <h3 className="text-xs font-bold text-editorial-text">{activeThread.name}</h3>
-                <p className="text-[10px] text-green-600 font-bold mt-0.5 animate-pulse">
-                  {activeThread.online ? 'En línea' : 'Desconectado'}
+                <p className="text-[10px] text-editorial-muted font-bold mt-0.5">
+                  {isAIActive ? 'Asistente virtual' : activeContact?.role === 'STUDENT' ? 'Estudiante' : 'Emprendedor'}
                 </p>
               </div>
-            </div>
-
-            <div className="flex gap-1">
-              <button 
-                onClick={() => alert('Llamadas de voz integradas con el portal NYLA próximamente.')}
-                className="p-2 hover:bg-editorial-light rounded-xl text-editorial-text cursor-pointer"
-              >
-                <Phone className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => alert('Llamadas de video de NYLA integradas próximamente.')}
-                className="p-2 hover:bg-editorial-light rounded-xl text-editorial-text cursor-pointer"
-              >
-                <Video className="w-4 h-4" />
-              </button>
             </div>
           </div>
 
           {/* Messages Feed */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-editorial-light/10">
+            {!isAIActive && !activeContact && (
+              <div className="h-full flex items-center justify-center text-xs text-editorial-muted text-center px-8">
+                Selecciona una conversación de la izquierda para empezar a chatear.
+              </div>
+            )}
+
             {activeThread.messages.map((m) => (
-              <div 
+              <div
                 key={m.id}
                 className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {m.role !== 'user' && (
                   <div className="w-8 h-8 rounded-full bg-editorial-text/5 text-editorial-text flex items-center justify-center text-xs shrink-0">
-                    {activeThread.isAI ? '🚀' : '👤'}
+                    {activeThread.avatar}
                   </div>
                 )}
-                
+
                 <div className="max-w-[85%] space-y-2">
                   <div className={`p-4 rounded-2xl text-xs leading-relaxed ${
                     m.role === 'user'
@@ -440,104 +313,6 @@ export default function ChatPage({ setView }: ChatPageProps) {
                   }`}>
                     {m.content}
                   </div>
-
-                  {/* Render contract UI block */}
-                  {m.isContract && m.contractData && (
-                    <div className="bg-editorial-bg p-5 rounded-2xl border border-editorial-border text-xs space-y-4">
-                      <div className="flex items-center gap-2 text-editorial-text">
-                        <FileText className="w-4 h-4" />
-                        <span className="font-serif font-bold text-sm">Contrato de Colaboración Digital #{m.contractData.id}</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3 text-[11px] border-t border-b border-editorial-border py-3">
-                        <div>
-                          <p className="text-editorial-muted font-bold uppercase tracking-wider text-[9px]">Partes</p>
-                          <p className="font-bold text-editorial-text mt-0.5">{m.contractData.parties}</p>
-                        </div>
-                        <div>
-                          <p className="text-editorial-muted font-bold uppercase tracking-wider text-[9px]">Servicio</p>
-                          <p className="font-bold text-editorial-text mt-0.5">{m.contractData.service}</p>
-                        </div>
-                        
-                        {editingContractId === m.id ? (
-                          <>
-                            <div>
-                              <p className="text-editorial-muted font-bold uppercase tracking-wider text-[9px]">Monto</p>
-                              <input 
-                                type="text"
-                                value={editAmount}
-                                onChange={(e) => setEditAmount(e.target.value)}
-                                className="bg-white border border-editorial-border rounded-lg px-2 py-1 font-bold text-editorial-text w-full mt-0.5"
-                              />
-                            </div>
-                            <div>
-                              <p className="text-editorial-muted font-bold uppercase tracking-wider text-[9px]">Plazo</p>
-                              <input 
-                                type="text"
-                                value={editDuration}
-                                onChange={(e) => setEditDuration(e.target.value)}
-                                className="bg-white border border-editorial-border rounded-lg px-2 py-1 font-bold text-editorial-text w-full mt-0.5"
-                              />
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div>
-                              <p className="text-editorial-muted font-bold uppercase tracking-wider text-[9px]">Monto</p>
-                              <p className="font-bold text-editorial-text mt-0.5">{m.contractData.amount}</p>
-                            </div>
-                            <div>
-                              <p className="text-editorial-muted font-bold uppercase tracking-wider text-[9px]">Plazo</p>
-                              <p className="font-bold text-editorial-text mt-0.5">{m.contractData.duration}</p>
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <span className={`text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
-                          m.contractData.status === 'accepted'
-                            ? 'bg-green-100 text-green-800 border border-green-200'
-                            : m.contractData.status === 'modified'
-                              ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                              : 'bg-blue-100 text-blue-800 border border-blue-200'
-                        }`}>
-                          {m.contractData.status === 'accepted' ? 'Firmado' : m.contractData.status === 'modified' ? 'Modificado' : 'Pendiente de firma'}
-                        </span>
-
-                        {m.contractData.status !== 'accepted' && (
-                          <div className="flex gap-2 w-full sm:w-auto">
-                            {editingContractId === m.id ? (
-                              <button 
-                                onClick={() => handleSaveEditContract(m.id)}
-                                className="bg-editorial-text text-editorial-bg px-4 py-2 rounded-lg font-bold hover:opacity-95 transition-opacity cursor-pointer text-xs"
-                              >
-                                Guardar
-                              </button>
-                            ) : (
-                              <button 
-                                onClick={() => {
-                                  setEditingContractId(m.id);
-                                  setEditAmount(m.contractData?.amount || '');
-                                  setEditDuration(m.contractData?.duration || '');
-                                }}
-                                className="border border-editorial-border text-editorial-text px-4 py-2 rounded-lg font-bold hover:bg-white transition-all cursor-pointer text-xs"
-                              >
-                                Modificar
-                              </button>
-                            )}
-                            <button 
-                              onClick={() => handleAcceptContract(m.id)}
-                              className="bg-editorial-text text-editorial-bg px-4 py-2 rounded-lg font-bold hover:opacity-95 transition-opacity flex items-center gap-1 cursor-pointer text-xs"
-                            >
-                              <Check className="w-3.5 h-3.5" /> Aceptar Contrato
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
                   <span className={`text-[9px] text-editorial-muted block ${m.role === 'user' ? 'text-right' : 'text-left'}`}>
                     {m.timestamp}
                   </span>
@@ -560,77 +335,31 @@ export default function ChatPage({ setView }: ChatPageProps) {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick reply tags for AI thread */}
-          {activeThread.isAI && (
-            <div className="px-4 py-2 bg-editorial-bg/40 border-t border-editorial-border flex gap-2 overflow-x-auto">
-              <button 
-                onClick={() => {
-                  setMsgInput('Por favor redacta una propuesta de contrato.');
-                }}
-                className="bg-white border border-editorial-border text-editorial-text px-3 py-1.5 rounded-full text-[10px] font-bold hover:bg-editorial-light transition-all whitespace-nowrap cursor-pointer"
-              >
-                📝 Redactar contrato
-              </button>
-              <button 
-                onClick={() => {
-                  setMsgInput('Buscar colaboradores para proyecto Frontend.');
-                }}
-                className="bg-white border border-editorial-border text-editorial-text px-3 py-1.5 rounded-full text-[10px] font-bold hover:bg-editorial-light transition-all whitespace-nowrap cursor-pointer"
-              >
-                👥 Buscar colaboradores
-              </button>
-            </div>
-          )}
-
           {/* Chat Input Bar */}
           <form onSubmit={handleSendMessage} className="p-4 border-t border-editorial-border bg-editorial-bg space-y-2">
             <div className="flex gap-2 items-center">
-              <button 
-                type="button" 
-                onClick={() => alert('Sube documentos PDF, Word o imágenes para el análisis de la IA.')}
-                className="p-2 hover:bg-editorial-light rounded-xl text-editorial-text cursor-pointer shrink-0"
-                title="Adjuntar archivo"
-              >
-                <Paperclip className="w-5 h-5" />
-              </button>
-              <button 
-                type="button" 
-                onClick={() => alert('Carga capturas de pantalla o mockups.')}
-                className="p-2 hover:bg-editorial-light rounded-xl text-editorial-text cursor-pointer shrink-0"
-                title="Subir imagen"
-              >
-                <Image className="w-5 h-5" />
-              </button>
-              
-              <input 
+              <input
                 type="text"
                 value={msgInput}
                 onChange={(e) => setMsgInput(e.target.value)}
-                placeholder={activeThread.isAI ? "Escribe un mensaje o pide ayuda a la AI..." : "Escribe un mensaje..."}
-                className="flex-1 bg-editorial-light border-none rounded-xl py-3 px-4 text-xs focus:ring-1 focus:ring-editorial-text focus:bg-white text-editorial-text placeholder-editorial-muted"
+                disabled={!isAIActive && !activeContact}
+                placeholder={isAIActive ? 'Escribe un mensaje o pide ayuda a la AI...' : 'Escribe un mensaje...'}
+                className="flex-1 bg-editorial-light border-none rounded-xl py-3 px-4 text-xs focus:ring-1 focus:ring-editorial-text focus:bg-white text-editorial-text placeholder-editorial-muted disabled:opacity-50"
               />
 
-              <button 
-                type="button" 
-                onClick={() => alert('Nota de voz próximamente.')}
-                className="p-2 hover:bg-editorial-light rounded-xl text-editorial-text cursor-pointer shrink-0"
-                title="Mensaje de voz"
-              >
-                <Mic className="w-5 h-5" />
-              </button>
-
-              <button 
+              <button
                 type="submit"
-                className="p-3 bg-editorial-text text-editorial-bg rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-none active:scale-95 shrink-0"
+                disabled={sending || (!isAIActive && !activeContact)}
+                className="p-3 bg-editorial-text text-editorial-bg rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-none active:scale-95 shrink-0 disabled:opacity-50"
               >
-                <Send className="w-4 h-4" />
+                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
             </div>
 
-            {activeThread.isAI && (
+            {isAIActive && (
               <p className="text-[9px] text-editorial-muted text-center flex items-center justify-center gap-1 leading-normal">
                 <AlertTriangle className="w-3 h-3 text-amber-700 shrink-0" />
-                La IA de NYLA puede cometer errores. Por favor, revisa la información contractual antes de firmar.
+                La IA de NYLA puede cometer errores. Verifica la información importante.
               </p>
             )}
           </form>
@@ -638,99 +367,57 @@ export default function ChatPage({ setView }: ChatPageProps) {
 
         {/* Right Details Panel */}
         <div className="hidden lg:flex flex-col bg-editorial-bg p-6 space-y-6 overflow-y-auto">
-          {activeThread.isAI ? (
+          {isAIActive ? (
             <>
               <div className="space-y-2 text-center pb-4 border-b border-editorial-border">
                 <div className="w-14 h-14 bg-editorial-text text-editorial-bg flex items-center justify-center text-2xl rounded-full mx-auto shadow-none">
                   🚀
                 </div>
                 <h4 className="font-serif font-bold text-sm text-editorial-text">NYLA AI Guide</h4>
-                <p className="text-[10px] text-editorial-muted">Tu copiloto de desarrollo y contratos</p>
+                <p className="text-[10px] text-editorial-muted">Tu copiloto de soporte en la plataforma</p>
               </div>
 
               <div className="space-y-3">
-                <h5 className="font-bold text-[9px] text-editorial-muted uppercase tracking-wider">Capacidades</h5>
+                <h5 className="font-bold text-[9px] text-editorial-muted uppercase tracking-wider">Puede ayudarte con</h5>
                 <ul className="space-y-2 text-xs text-editorial-text">
                   <li className="flex gap-2 items-start">
                     <Check className="w-4 h-4 text-editorial-text shrink-0" />
-                    <span>Redactar contratos formales de colaboración</span>
+                    <span>Cómo registrarte y usar la plataforma</span>
                   </li>
                   <li className="flex gap-2 items-start">
                     <Check className="w-4 h-4 text-editorial-text shrink-0" />
-                    <span>Evaluar habilidades y compatibilidad</span>
+                    <span>Tarifas, comisión y pagos en garantía</span>
                   </li>
                   <li className="flex gap-2 items-start">
                     <Check className="w-4 h-4 text-editorial-text shrink-0" />
-                    <span>Sugerir mejoras de código y UI/UX</span>
+                    <span>Redactar un modelo de contrato</span>
                   </li>
                 </ul>
               </div>
-
-              <div className="space-y-3 pt-4 border-t border-editorial-border">
-                <h5 className="font-bold text-[9px] text-editorial-muted uppercase tracking-wider">Proyecto Actual</h5>
-                <div className="space-y-2 bg-white p-4 rounded-[20px] border border-editorial-border shadow-none">
-                  <p className="font-serif font-bold text-xs text-editorial-text">Fintech Revolution App</p>
-                  <p className="text-[10px] text-editorial-muted">Rediseño del flujo de pagos</p>
-                  <div className="w-full bg-editorial-light h-1 rounded-full overflow-hidden mt-2">
-                    <div className="bg-editorial-text h-full w-[65%] rounded-full"></div>
-                  </div>
-                  <p className="text-[9px] font-bold text-editorial-text mt-1 text-right">65% completado</p>
-                </div>
-              </div>
-
-              <div className="space-y-3 pt-4 border-t border-editorial-border">
-                <h5 className="font-bold text-[9px] text-editorial-muted uppercase tracking-wider">Documentos Compartidos</h5>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-editorial-border text-xs shadow-none">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-editorial-text" />
-                      <span className="font-semibold text-editorial-text truncate max-w-[120px]">Brief_Final.pdf</span>
-                    </div>
-                    <button 
-                      onClick={() => alert('Descargando archivo Brief_Final.pdf...')}
-                      className="text-editorial-text p-1.5 hover:bg-editorial-light rounded-lg transition-colors cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-editorial-border text-xs shadow-none">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-editorial-text" />
-                      <span className="font-semibold text-editorial-text truncate max-w-[120px]">User_Flow.fig</span>
-                    </div>
-                    <button 
-                      onClick={() => alert('Descargando archivo User_Flow.fig...')}
-                      className="text-editorial-text p-1.5 hover:bg-editorial-light rounded-lg transition-colors cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
             </>
-          ) : (
+          ) : activeContact ? (
             <>
               <div className="space-y-2 text-center pb-4 border-b border-editorial-border">
-                <div className="w-14 h-14 rounded-full border border-editorial-border overflow-hidden mx-auto">
-                  <img className="w-full h-full object-cover" referrerPolicy="no-referrer" src={activeThread.avatar} alt={activeThread.name} />
+                <div className="w-14 h-14 rounded-full border border-editorial-border bg-editorial-text text-editorial-bg flex items-center justify-center text-2xl mx-auto">
+                  {activeThread.avatar}
                 </div>
-                <h4 className="font-serif font-bold text-sm text-editorial-text">{activeThread.name}</h4>
-                <button 
-                  onClick={() => setView('perfil')}
-                  className="text-[10px] text-editorial-text font-bold uppercase tracking-wider hover:underline"
-                >
-                  Ver Perfil de Talento
-                </button>
+                <h4 className="font-serif font-bold text-sm text-editorial-text">{activeContact.name}</h4>
+                <p className="text-[10px] text-editorial-muted font-bold uppercase tracking-wider">
+                  {activeContact.role === 'STUDENT' ? 'Estudiante' : 'Emprendedor'}
+                </p>
               </div>
 
               <div className="space-y-3">
-                <h5 className="font-bold text-[9px] text-editorial-muted uppercase tracking-wider">Sobre el Colaborador</h5>
+                <h5 className="font-bold text-[9px] text-editorial-muted uppercase tracking-wider flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" /> Conversación real
+                </h5>
                 <p className="text-xs text-editorial-text leading-relaxed">
-                  Estudiante certificada por NYLA con excelente historial de entregas. Especialista en React.js, Figma y desarrollo full-stack.
+                  Esta conversación está conectada a un proyecto que tienen en común en NYLA. Los mensajes se guardan de forma real y se actualizan automáticamente.
                 </p>
               </div>
             </>
+          ) : (
+            <p className="text-xs text-editorial-muted text-center pt-8">Selecciona una conversación para ver los detalles.</p>
           )}
         </div>
 
