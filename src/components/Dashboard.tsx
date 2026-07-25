@@ -1,0 +1,622 @@
+import React, { useEffect, useState } from 'react';
+import { Send, Rocket, Landmark, Bell, Lightbulb, ChevronRight, CheckCircle2, Hourglass, Plus, BadgeCheck, ShieldCheck, Loader2, Users, Wallet } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ViewState, Project, StudentProfileData, EntrepreneurProfileData } from '../types';
+import { useAuth } from '../context/AuthContext';
+
+interface DashboardProps {
+  setView: (view: ViewState) => void;
+  onOpenNewProject?: () => void;
+}
+
+interface MeStats {
+  appliedCount?: number;
+  activeCount?: number;
+  earningsCount?: number;
+  postedCount?: number;
+  spentCount?: number;
+}
+
+export default function Dashboard({ setView, onOpenNewProject }: DashboardProps) {
+  const { user, profile } = useAuth();
+  const isStudent = user?.role === 'STUDENT';
+  const displayName = isStudent
+    ? (profile as StudentProfileData | null)?.fullName
+    : (profile as EntrepreneurProfileData | null)?.businessName;
+  const firstName = displayName?.split(' ')[0] || 'de nuevo';
+  const photoUrl = isStudent ? (profile as StudentProfileData | null)?.photoUrl : (profile as EntrepreneurProfileData | null)?.logoUrl;
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(true);
+
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [stats, setStats] = useState<MeStats>({});
+  const [loading, setLoading] = useState(true);
+
+  // Escrow Release Celebration Modal state
+  const [releasingProject, setReleasingProject] = useState<Project | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [assigningId, setAssigningId] = useState<string | null>(null);
+
+  const loadDashboard = async () => {
+    setLoading(true);
+    try {
+      const [projectsRes, statsRes] = await Promise.all([
+        fetch('/api/projects/mine', { credentials: 'include' }),
+        fetch('/api/stats/me', { credentials: 'include' }),
+      ]);
+      const projectsData = await projectsRes.json();
+      const statsData = await statsRes.json();
+      if (projectsRes.ok) setProjects(projectsData.projects);
+      if (statsRes.ok) setStats(statsData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const handleDeliver = async (projectId: string) => {
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/deliver`, { method: 'POST', credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudo marcar la entrega.');
+      setProjects(prev => prev.map(p => p.id === projectId ? data.project : p));
+    } catch (err: any) {
+      setActionError(err.message);
+    }
+  };
+
+  const handleInitiateRelease = (project: Project) => {
+    setReleasingProject(project);
+    setShowCelebration(true);
+  };
+
+  const handleConfirmRelease = async () => {
+    if (!releasingProject) return;
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/payments/projects/${releasingProject.id}/release`, { method: 'POST', credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudo liberar el pago.');
+      setProjects(prev => prev.map(p => p.id === releasingProject.id ? data.project : p));
+      await loadDashboard();
+      setShowCelebration(false);
+      setReleasingProject(null);
+    } catch (err: any) {
+      setActionError(err.message);
+      setShowCelebration(false);
+    }
+  };
+
+  const [depositingId, setDepositingId] = useState<string | null>(null);
+
+  const handleDeposit = async (projectId: string) => {
+    setDepositingId(projectId);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/payments/projects/${projectId}/checkout`, { method: 'POST', credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el depósito en garantía.');
+      window.location.href = data.url;
+    } catch (err: any) {
+      setActionError(err.message);
+      setDepositingId(null);
+    }
+  };
+
+  const handleAssign = async (projectId: string, studentId: string) => {
+    setAssigningId(studentId);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/assign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ studentId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudo asignar al estudiante.');
+      await loadDashboard();
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setAssigningId(null);
+    }
+  };
+
+  const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS' && p.escrowStatus === 'HELD');
+  const awaitingDepositProjects = projects.filter(p => p.status === 'IN_PROGRESS' && p.escrowStatus === 'NONE');
+  const openProjects = projects.filter(p => p.status === 'OPEN');
+  const pendingApplications = projects.filter(p => p.myApplicationStatus === 'PENDING');
+
+  return (
+    <div className="min-h-screen bg-editorial-bg pb-24 md:pb-8">
+
+      {/* Top Bar / Header */}
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4 pb-6 border-b border-editorial-border">
+        <div>
+          <button
+            onClick={() => setView('landing')}
+            className="mb-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-editorial-muted hover:text-editorial-text transition-colors bg-white border border-editorial-border px-3 py-1.5 rounded-full cursor-pointer"
+          >
+            ← Volver a la Portada (Inicio)
+          </button>
+          <h2 className="text-3xl md:text-5xl font-serif font-black text-editorial-text tracking-tight">Hola, {firstName}</h2>
+          <p className="text-sm text-editorial-muted mt-1">Aquí tienes un resumen de tu actividad en NYLA.</p>
+        </div>
+
+        <div className="flex items-center gap-4 self-end md:self-auto">
+          {/* Notifications */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                setHasNewNotifications(false);
+              }}
+              className="p-2.5 bg-editorial-bg rounded-full border border-editorial-border hover:bg-editorial-light transition-all relative cursor-pointer"
+            >
+              <Bell className="w-5 h-5 text-editorial-text" />
+              {hasNewNotifications && (
+                <span className="absolute top-0 right-0 w-3 h-3 bg-red-600 rounded-full border-2 border-editorial-bg"></span>
+              )}
+            </button>
+
+            <AnimatePresence>
+              {showNotifications && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 mt-3 w-80 bg-editorial-bg border border-editorial-border rounded-[20px] shadow-md z-50 p-5"
+                >
+                  <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold text-editorial-text/40 border-b border-editorial-border pb-2 mb-3">Notificaciones</h4>
+                  <div className="space-y-3">
+                    {activeProjects.length > 0 ? (
+                      <div className="flex gap-3 text-xs">
+                        <span className="w-2 h-2 bg-editorial-text rounded-full shrink-0 mt-1.5"></span>
+                        <div>
+                          <p className="font-bold text-editorial-text">Tienes {activeProjects.length} contrato(s) activo(s)</p>
+                          <p className="text-editorial-muted mt-0.5">Revisa el progreso y la garantía en custodia (Escrow) más abajo.</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-editorial-muted">Sin notificaciones nuevas por ahora.</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Profile Avatar */}
+          <div
+            onClick={() => setView('perfil')}
+            className="w-11 h-11 rounded-full overflow-hidden border border-editorial-border cursor-pointer hover:border-editorial-text transition-all bg-white flex items-center justify-center"
+          >
+            {photoUrl ? (
+              <img className="w-full h-full object-cover" referrerPolicy="no-referrer" src={photoUrl} alt={displayName || 'Perfil'} />
+            ) : (
+              <span className="text-sm font-bold text-editorial-text">{(displayName || '?').charAt(0).toUpperCase()}</span>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Stats Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        {isStudent ? (
+          <>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Postulaciones</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <Send className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-5xl font-serif font-black text-editorial-text">{stats.appliedCount ?? 0}</div>
+            </div>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Proyectos Activos</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <Rocket className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-5xl font-serif font-black text-editorial-text">{String(stats.activeCount ?? 0).padStart(2, '0')}</div>
+            </div>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Ingresos Generados</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <Landmark className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-4xl font-serif font-black text-editorial-text">${(stats.earningsCount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Proyectos Publicados</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <Send className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-5xl font-serif font-black text-editorial-text">{stats.postedCount ?? 0}</div>
+            </div>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Proyectos Activos</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <Rocket className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-5xl font-serif font-black text-editorial-text">{String(stats.activeCount ?? 0).padStart(2, '0')}</div>
+            </div>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Invertido en Talento</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <Landmark className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-4xl font-serif font-black text-editorial-text">${(stats.spentCount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </div>
+          </>
+        )}
+      </section>
+
+      {loading && (
+        <div className="flex items-center justify-center py-12 text-editorial-muted text-xs gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando tu actividad...
+        </div>
+      )}
+
+      {actionError && (
+        <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3 mb-8">{actionError}</p>
+      )}
+
+      {!loading && (
+      <>
+      {/* Awaiting escrow deposit */}
+      {!isStudent && awaitingDepositProjects.length > 0 && (
+        <section className="mb-12 space-y-4">
+          <div className="flex gap-2 items-center pb-2.5 border-b border-editorial-border">
+            <Wallet className="w-5 h-5 text-editorial-text" />
+            <h3 className="text-2xl font-serif font-bold text-editorial-text">Esperando Depósito en Garantía</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {awaitingDepositProjects.map(project => (
+              <div key={project.id} className="bg-white border border-editorial-border rounded-[24px] p-5 space-y-3">
+                <h4 className="text-sm font-serif font-bold text-editorial-text">{project.title}</h4>
+                <p className="text-[10px] text-editorial-muted">
+                  {project.student?.studentProfile?.fullName ? `Asignado a ${project.student.studentProfile.fullName} • ` : ''}
+                  Presupuesto: ${project.budget.toFixed(2)}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleDeposit(project.id)}
+                  disabled={depositingId === project.id}
+                  className="w-full py-3 bg-editorial-text text-editorial-bg hover:opacity-90 transition-all font-bold text-[10px] uppercase tracking-[0.15em] rounded-full cursor-pointer border-none disabled:opacity-50"
+                >
+                  {depositingId === project.id ? 'Redirigiendo a Stripe...' : 'Depositar en Garantía'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {isStudent && awaitingDepositProjects.length > 0 && (
+        <section className="mb-12 space-y-4">
+          <div className="flex gap-2 items-center pb-2.5 border-b border-editorial-border">
+            <Wallet className="w-5 h-5 text-editorial-text" />
+            <h3 className="text-2xl font-serif font-bold text-editorial-text">Esperando Depósito del Emprendedor</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {awaitingDepositProjects.map(project => (
+              <div key={project.id} className="bg-white border border-editorial-border rounded-[24px] p-5 space-y-1">
+                <h4 className="text-sm font-serif font-bold text-editorial-text">{project.title}</h4>
+                <p className="text-[10px] text-editorial-muted">
+                  El contrato fue firmado. Esperando que {project.entrepreneurName || 'el emprendedor'} deposite los fondos en garantía para comenzar.
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Active Projects & Payout Releases Panel */}
+      {activeProjects.length > 0 && (
+        <section className="mb-12 space-y-4">
+          <div className="flex gap-2 items-center pb-2.5 border-b border-editorial-border">
+            <ShieldCheck className="w-5 h-5 text-editorial-text" />
+            <h3 className="text-2xl font-serif font-bold text-editorial-text">Contratos Activos y Garantía Escrow</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {activeProjects.map(project => (
+              <div key={project.id} className="bg-white border border-editorial-border rounded-[32px] p-6 flex flex-col justify-between space-y-6">
+
+                <div className="space-y-3.5">
+                  <div className="flex justify-between items-start gap-4">
+                    <div>
+                      <span className="bg-green-50 text-green-800 border border-green-200 px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider">
+                        FONDOS EN CUSTODIA (ESCROW)
+                      </span>
+                      <h4 className="text-lg font-serif font-bold text-editorial-text mt-2 leading-snug">{project.title}</h4>
+                      {!isStudent && project.student?.studentProfile && (
+                        <p className="text-[10px] text-editorial-muted mt-1 font-bold uppercase tracking-wider">
+                          Estudiante: {project.student.studentProfile.fullName}
+                        </p>
+                      )}
+                      {isStudent && project.entrepreneurName && (
+                        <p className="text-[10px] text-editorial-muted mt-1 font-bold uppercase tracking-wider">
+                          Emprendedor: {project.entrepreneurName}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[9px] text-editorial-muted font-bold uppercase tracking-wider">PRESUPUESTO</p>
+                      <p className="text-xl font-serif font-bold text-editorial-text">${project.budget.toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-editorial-muted leading-relaxed line-clamp-2">
+                    {project.description}
+                  </p>
+
+                  <div className="bg-editorial-bg p-3.5 rounded-xl text-[11px] leading-relaxed text-editorial-text flex gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-editorial-accent shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Garantía NYLA Activa:</strong> Los fondos se encuentran retenidos temporalmente de forma segura. Tras la aprobación, se restará el 20% de comisión.
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-2">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-editorial-muted uppercase tracking-wider">
+                      <span>Progreso de Entregables</span>
+                      <span>{project.progress}%</span>
+                    </div>
+                    <div className="w-full bg-editorial-light h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-editorial-text h-full transition-all duration-500" style={{ width: `${project.progress}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2.5 pt-3 border-t border-editorial-border/40">
+                  {isStudent ? (
+                    project.progress < 100 ? (
+                      <button
+                        type="button"
+                        onClick={() => handleDeliver(project.id)}
+                        className="flex-1 py-3 bg-editorial-text text-editorial-bg hover:opacity-90 transition-all font-bold text-[10px] uppercase tracking-[0.15em] rounded-full cursor-pointer border-none"
+                      >
+                        Marcar como Entregado
+                      </button>
+                    ) : (
+                      <div className="flex-1 py-3 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-editorial-muted">
+                        Esperando aprobación del emprendedor
+                      </div>
+                    )
+                  ) : (
+                    project.progress >= 100 ? (
+                      <button
+                        type="button"
+                        onClick={() => handleInitiateRelease(project)}
+                        className="flex-1 py-3 bg-green-700 text-white hover:bg-green-800 transition-all font-bold text-[10px] uppercase tracking-[0.15em] rounded-full cursor-pointer border-none flex items-center justify-center gap-1.5"
+                      >
+                        <BadgeCheck className="w-4 h-4" /> Autorizar & Liberar Fondos
+                      </button>
+                    ) : (
+                      <div className="flex-1 py-3 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-editorial-muted">
+                        Esperando entrega del estudiante
+                      </div>
+                    )
+                  )}
+                </div>
+
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Entrepreneur: open projects + applicants */}
+      {!isStudent && openProjects.length > 0 && (
+        <section className="mb-12 space-y-4">
+          <div className="flex gap-2 items-center pb-2.5 border-b border-editorial-border">
+            <Users className="w-5 h-5 text-editorial-text" />
+            <h3 className="text-2xl font-serif font-bold text-editorial-text">Proyectos Publicados y Postulantes</h3>
+          </div>
+          <div className="space-y-4">
+            {openProjects.map(project => (
+              <div key={project.id} className="bg-white border border-editorial-border rounded-[24px] p-5 space-y-3">
+                <div className="flex justify-between items-start gap-4">
+                  <div>
+                    <h4 className="text-sm font-serif font-bold text-editorial-text">{project.title}</h4>
+                    <p className="text-[10px] text-editorial-muted mt-0.5">Abierto • ${project.budget.toFixed(2)} presupuesto</p>
+                  </div>
+                </div>
+                {(project.applications?.length ?? 0) === 0 ? (
+                  <p className="text-xs text-editorial-muted">Aún no hay postulantes. También puedes ir a "Nuevo Proyecto" para revisar el match inteligente.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {project.applications!.filter(a => a.status === 'PENDING').map(app => (
+                      <div key={app.id} className="flex items-center justify-between bg-editorial-bg p-3 rounded-xl">
+                        <span className="text-xs font-bold text-editorial-text">{app.student?.studentProfile?.fullName || 'Estudiante'}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleAssign(project.id, app.studentId)}
+                          disabled={assigningId === app.studentId}
+                          className="text-[10px] uppercase tracking-wider font-bold bg-editorial-text text-editorial-bg px-3 py-1.5 rounded-full cursor-pointer border-none disabled:opacity-50"
+                        >
+                          {assigningId === app.studentId ? 'Asignando...' : 'Asignar'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+      </>
+      )}
+
+      {/* Main Layout Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
+        <div className="lg:col-span-8 space-y-8">
+          {isStudent ? (
+            <div className="bg-editorial-text text-editorial-bg p-8 rounded-[40px] flex flex-col md:flex-row items-center gap-8 border border-editorial-border">
+              <div className="flex-1 space-y-3">
+                <h4 className="text-2xl font-serif font-bold text-editorial-bg">Explora nuevas oportunidades</h4>
+                <p className="text-editorial-bg/80 text-sm max-w-md leading-relaxed">
+                  Revisa los proyectos abiertos publicados por emprendedores y postúlate a los que se ajusten a tu perfil.
+                </p>
+                <button
+                  onClick={() => setView('proyectos')}
+                  className="bg-editorial-bg text-editorial-text px-6 py-3 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] hover:bg-editorial-light transition-colors cursor-pointer border-none"
+                >
+                  Ver proyectos
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-editorial-text text-editorial-bg p-8 rounded-[40px] flex flex-col md:flex-row items-center gap-8 border border-editorial-border">
+              <div className="flex-1 space-y-3">
+                <h4 className="text-2xl font-serif font-bold text-editorial-bg">¿Necesitas talento para un nuevo proyecto?</h4>
+                <p className="text-editorial-bg/80 text-sm max-w-md leading-relaxed">
+                  Publica los requisitos y nuestro match inteligente te mostrará los estudiantes más compatibles.
+                </p>
+                <button
+                  onClick={onOpenNewProject}
+                  className="bg-editorial-bg text-editorial-text px-6 py-3 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] hover:bg-editorial-light transition-colors cursor-pointer border-none flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Nuevo Proyecto
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar (col-span-4) */}
+        <aside className="lg:col-span-4 space-y-8">
+
+          {isStudent && pendingApplications.length > 0 && (
+            <div className="bg-editorial-bg p-6 rounded-[32px] border border-editorial-border space-y-4">
+              <h3 className="text-base font-serif font-bold text-editorial-text">Postulaciones Pendientes</h3>
+              <div className="space-y-3">
+                {pendingApplications.map(p => (
+                  <div key={p.id} className="flex gap-3 items-start">
+                    <div className="w-8 h-8 rounded-full bg-editorial-light text-editorial-muted flex items-center justify-center border border-editorial-border shrink-0">
+                      <Hourglass className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h5 className="text-xs font-bold text-editorial-text">{p.title}</h5>
+                      <p className="text-[10px] font-bold text-editorial-muted mt-0.5">Esperando respuesta del emprendedor</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Helpful Tip Card */}
+          <div className="bg-editorial-light p-6 rounded-[32px] border border-editorial-border space-y-3">
+            <div className="text-editorial-text">
+              <Lightbulb className="w-6 h-6" />
+            </div>
+            <h5 className="text-xs font-bold text-editorial-text uppercase tracking-wider">Consejo NYLA</h5>
+            <p className="text-xs text-editorial-muted leading-relaxed">
+              {isStudent
+                ? 'Completar tu perfil con habilidades y disponibilidad reales aumenta tus posibilidades de coincidir con emprendedores.'
+                : 'Mientras más detallada sea la descripción y las habilidades requeridas, mejor será el match inteligente de candidatos.'}
+            </p>
+            <button
+              onClick={() => setView('perfil')}
+              className="mt-2 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] font-bold text-editorial-text hover:opacity-60 cursor-pointer border-none bg-transparent"
+            >
+              <span>Actualizar Perfil</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </aside>
+
+      </div>
+
+      {/* Escrow Release & Celebration Payout Dialog Modal */}
+      <AnimatePresence>
+        {showCelebration && releasingProject && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 30, scale: 0.95 }}
+              className="bg-white border border-editorial-border rounded-[40px] w-full max-w-lg overflow-hidden p-8 space-y-6"
+            >
+              <div className="text-center space-y-3">
+                <div className="w-14 h-14 bg-green-100 text-green-800 rounded-full flex items-center justify-center mx-auto">
+                  <ShieldCheck className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-serif font-black text-editorial-text leading-tight">Autorizar Liberación de Custodia</h3>
+                <p className="text-xs text-editorial-muted max-w-sm mx-auto">
+                  Por favor, confirma que los entregables han sido revisados y cumplen plenamente con tus requerimientos técnicos.
+                </p>
+              </div>
+
+              <div className="border border-editorial-border rounded-2xl p-5 space-y-3.5 bg-editorial-bg/30">
+                <span className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold block">Liquidación Económica del Contrato</span>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-editorial-muted">Total Retenido en Garantía:</span>
+                    <strong className="text-editorial-text">${releasingProject.budget.toFixed(2)} USD</strong>
+                  </div>
+                  <div className="flex justify-between border-b border-editorial-border/60 pb-2.5 mb-2">
+                    <span className="text-editorial-muted">Comisión de Servicio NYLA (20%):</span>
+                    <strong className="text-red-700">-${(releasingProject.budget * 0.20).toFixed(2)} USD</strong>
+                  </div>
+                  <div className="flex justify-between font-serif font-black text-sm text-editorial-accent">
+                    <span>Monto Neto Liberado al Estudiante:</span>
+                    <span>${(releasingProject.budget * 0.80).toFixed(2)} USD</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-editorial-muted leading-relaxed text-center italic bg-editorial-bg/30 p-3.5 rounded-xl border border-editorial-border border-dashed">
+                Al autorizar, el estado del contrato pasa a "Completado" y el estudiante queda notificado. La liberación real de fondos vía pasarela de pago llega en una fase posterior de la plataforma.
+              </div>
+
+              <div className="flex gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setShowCelebration(false); setReleasingProject(null); }}
+                  className="flex-1 py-3 border border-editorial-border text-editorial-text font-bold rounded-full text-[10px] uppercase tracking-[0.15em] hover:bg-editorial-light transition-all cursor-pointer bg-transparent"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmRelease}
+                  className="flex-1 py-3 bg-green-700 text-white font-bold rounded-full text-[10px] uppercase tracking-[0.15em] hover:bg-green-800 transition-all cursor-pointer border-none"
+                >
+                  Aprobar & Confirmar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}

@@ -1,0 +1,6 @@
+{
+  "name": "NYLA Portal",
+  "description": "Un portal académico y profesional que conecta el talento universitario con startups, proyectos reales y un asistente de IA para optimizar la colaboración.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
