@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, ChevronRight, Sparkles, Shield, ArrowLeft, CheckCircle2, PenTool, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, ViewState, MatchCandidate, EntrepreneurProfileData } from '../types';
-import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout, estimateCustomDeliverables } from '../constants';
+import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout, estimateCustomDeliverables, MIN_PROJECT_HOURS, MAX_PROJECT_HOURS } from '../constants';
 import { useAuth } from '../context/AuthContext';
 
 interface HiringWizardProps {
@@ -75,7 +75,7 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
   const [requiredCareer, setRequiredCareer] = useState('Diseño Gráfico y Publicidad');
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
   const [selectedPackageId, setSelectedPackageId] = useState<'simple' | 'intermedio' | 'elaborado' | 'custom'>('intermedio');
-  const [customHours, setCustomHours] = useState(8);
+  const [customHours, setCustomHours] = useState(MAX_PROJECT_HOURS);
   const selectedPackage = PROJECT_PACKAGES.find(p => p.id === selectedPackageId);
   const estimatedHours = selectedPackage ? selectedPackage.hours : customHours;
   const hourlyRate = STUDENT_HOURLY_RATE;
@@ -731,16 +731,16 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="font-serif font-black text-sm">Personalizado</p>
-                      <p className={`text-[10px] ${selectedPackageId === 'custom' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Define tus propias horas si tu proyecto no encaja en los paquetes anteriores.</p>
+                      <p className={`text-[10px] ${selectedPackageId === 'custom' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Elige entre {MIN_PROJECT_HOURS} y {MAX_PROJECT_HOURS} horas — es el máximo que un estudiante puede dedicar a un solo proyecto en NYLA.</p>
                     </div>
                     {selectedPackageId === 'custom' && (
                       <input
                         type="number"
-                        min={1}
-                        max={40}
+                        min={MIN_PROJECT_HOURS}
+                        max={MAX_PROJECT_HOURS}
                         value={customHours}
                         onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => setCustomHours(Math.max(1, Math.min(40, Number(e.target.value))))}
+                        onChange={(e) => setCustomHours(Math.max(MIN_PROJECT_HOURS, Math.min(MAX_PROJECT_HOURS, Number(e.target.value))))}
                         className="w-20 bg-white text-editorial-text border border-editorial-border rounded-xl p-2 text-xs text-center font-bold"
                       />
                     )}

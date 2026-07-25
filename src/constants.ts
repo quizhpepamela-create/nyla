@@ -3,6 +3,24 @@
 export const STUDENT_HOURLY_RATE = 5.0;
 export const NYLA_FIXED_FEE = 10.57;
 
+export const MIN_PROJECT_HOURS = 1;
+export const MAX_PROJECT_HOURS = 8;
+
+// What a student can realistically deliver at each hour count, from 1 to the platform cap
+// of 8h. Each package (Simple/Intermedio/Elaborado) is just a shortcut to one of these tiers
+// — the table is also used to describe "Personalizado" hour-by-hour, with a hard limit so no
+// one expects an unrealistic amount of work crammed into a single hour.
+export const HOURLY_WORKLOAD: Record<number, string> = {
+  1: '1 publicación simple para redes sociales (post o historia).',
+  2: '1 publicación diseñada + recomendación breve de horario de publicación.',
+  3: '2 publicaciones + redacción básica de texto publicitario (copy).',
+  4: '2-3 publicaciones + mini calendario de contenido (1 semana) + hashtags recomendados.',
+  5: '3-4 publicaciones + calendario de 1 semana + ajustes de identidad de marca (colores/tipografía).',
+  6: '4-5 publicaciones + calendario de contenido completo (2 semanas) + configuración básica de una campaña de anuncios + reporte breve.',
+  7: 'Todo lo del paquete Elaborado + 1 pieza de contenido adicional.',
+  8: 'Todo lo del paquete Elaborado + calendario extendido (3 semanas) + reporte de resultados con recomendaciones.',
+};
+
 export interface ProjectPackage {
   id: 'simple' | 'intermedio' | 'elaborado';
   label: string;
@@ -43,9 +61,11 @@ export const PROJECT_PACKAGES: ProjectPackage[] = [
   },
 ];
 
-// Rough guide for a custom/personalized quote: about one unit of deliverable work per hour.
+// Exact description of what a "Personalizado" quote includes at the chosen hour count.
+// Hours are capped at MAX_PROJECT_HOURS so no one expects unrealistic work in too little time.
 export function estimateCustomDeliverables(hours: number): string {
-  return `≈ ${hours} ${hours === 1 ? 'unidad de trabajo' : 'unidades de trabajo'} (posts, diseños, asesorías o ajustes de campaña) — el alcance exacto se define con el estudiante según tu proyecto.`;
+  const clamped = Math.min(MAX_PROJECT_HOURS, Math.max(MIN_PROJECT_HOURS, hours));
+  return HOURLY_WORKLOAD[clamped] ?? HOURLY_WORKLOAD[MAX_PROJECT_HOURS];
 }
 
 export function calculatePVP(hours: number): number {
