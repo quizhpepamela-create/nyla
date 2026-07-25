@@ -270,6 +270,13 @@ export default function ProjectsPage({ setView }: ProjectsPageProps) {
                 <h3 className="font-serif font-bold text-lg text-editorial-text leading-snug group-hover:italic transition-all">
                   {project.title}
                 </h3>
+                {(project.entrepreneurCategory || project.entrepreneurDescription) && (
+                  <p className="text-[10px] text-editorial-muted italic border-l-2 border-editorial-border pl-2">
+                    {project.entrepreneurName}
+                    {project.entrepreneurCategory ? ` · ${project.entrepreneurCategory}` : ''}
+                    {project.entrepreneurDescription ? ` — ${project.entrepreneurDescription}` : ''}
+                  </p>
+                )}
                 <p className="text-editorial-muted text-xs leading-relaxed line-clamp-3">
                   {project.description}
                 </p>

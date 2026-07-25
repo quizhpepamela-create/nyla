@@ -10,13 +10,15 @@ import ChatPage from './components/ChatPage';
 import ProjectsPage from './components/ProjectsPage';
 import ConfigPage from './components/ConfigPage';
 import HiringWizard from './components/HiringWizard';
+import StudentsPage from './components/StudentsPage';
+import AdminDashboard from './components/AdminDashboard';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import ForgotPasswordPage from './components/auth/ForgotPasswordPage';
 import ResetPasswordPage from './components/auth/ResetPasswordPage';
 import ChatbotWidget from './components/ChatbotWidget';
 
-const PROTECTED_VIEWS: ViewState[] = ['dashboard', 'proyectos', 'mensajes', 'perfil', 'configuracion', 'contratacion'];
+const PROTECTED_VIEWS: ViewState[] = ['dashboard', 'proyectos', 'mensajes', 'perfil', 'configuracion', 'contratacion', 'talento', 'admin'];
 const AUTH_VIEWS: ViewState[] = ['login', 'register', 'forgot-password'];
 
 export default function App() {
@@ -121,6 +123,10 @@ export default function App() {
     );
   }
 
+  if (user.role === 'ADMIN') {
+    return <AdminDashboard setView={setView} />;
+  }
+
   const renderActiveView = () => {
     switch (currentView) {
       case 'proyectos':
@@ -129,6 +135,8 @@ export default function App() {
         return <ChatPage setView={setView} />;
       case 'perfil':
         return <ProfilePage setView={setView} />;
+      case 'talento':
+        return <StudentsPage setView={setView} />;
       case 'contratacion':
         return (
           <HiringWizard

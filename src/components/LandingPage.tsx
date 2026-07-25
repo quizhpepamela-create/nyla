@@ -25,6 +25,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { ViewState } from '../types';
 import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE } from '../constants';
+import { useAuth } from '../context/AuthContext';
 
 // @ts-ignore
 import grafitoWearLogo from '../assets/images/grafito_wear_logo_1784684755052.jpg';
@@ -200,6 +201,7 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ setView }: LandingPageProps) {
+  const { user, logout } = useAuth();
   const [showCookies, setShowCookies] = useState(false);
   const [selectedSuccessStory, setSelectedSuccessStory] = useState<'grafito' | 'adry'>('adry');
 
@@ -422,18 +424,37 @@ export default function LandingPage({ setView }: LandingPageProps) {
           </div>
           
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setView('login')}
-              className="hidden sm:block text-editorial-text/70 hover:text-editorial-text text-[11px] uppercase tracking-[0.2em] font-bold py-2.5 transition-colors duration-200 cursor-pointer"
-            >
-              Iniciar sesión
-            </button>
-            <button
-              onClick={() => setView('register')}
-              className="border border-editorial-text bg-editorial-text text-editorial-bg px-6 py-2.5 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-transparent hover:text-editorial-text transition-colors duration-200 cursor-pointer"
-            >
-              Registrarse
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => setView('dashboard')}
+                  className="hidden sm:block text-editorial-text/70 hover:text-editorial-text text-[11px] uppercase tracking-[0.2em] font-bold py-2.5 transition-colors duration-200 cursor-pointer"
+                >
+                  Ir a mi Dashboard
+                </button>
+                <button
+                  onClick={async () => { await logout(); setView('landing'); }}
+                  className="border border-editorial-text bg-editorial-text text-editorial-bg px-6 py-2.5 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-transparent hover:text-editorial-text transition-colors duration-200 cursor-pointer"
+                >
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setView('login')}
+                  className="hidden sm:block text-editorial-text/70 hover:text-editorial-text text-[11px] uppercase tracking-[0.2em] font-bold py-2.5 transition-colors duration-200 cursor-pointer"
+                >
+                  Iniciar sesión
+                </button>
+                <button
+                  onClick={() => setView('register')}
+                  className="border border-editorial-text bg-editorial-text text-editorial-bg px-6 py-2.5 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-transparent hover:text-editorial-text transition-colors duration-200 cursor-pointer"
+                >
+                  Registrarse
+                </button>
+              </>
+            )}
           </div>
         </div>
       </nav>

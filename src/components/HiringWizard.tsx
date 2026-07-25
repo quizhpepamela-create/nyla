@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, ChevronRight, Sparkles, Shield, ArrowLeft, CheckCircle2, PenTool, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, ViewState, MatchCandidate, EntrepreneurProfileData } from '../types';
-import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout } from '../constants';
+import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout, estimateCustomDeliverables } from '../constants';
 import { useAuth } from '../context/AuthContext';
 
 interface HiringWizardProps {
@@ -709,6 +709,11 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                         <p className="font-serif font-black text-base">{pkg.label}</p>
                         <p className={`text-lg font-serif font-black ${isSelected ? 'text-editorial-bg' : 'text-editorial-text'}`}>${calculatePVP(pkg.hours).toFixed(2)}</p>
                         <p className={`text-[10px] ${isSelected ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Estudiante recibe ${calculateStudentPayout(pkg.hours).toFixed(2)}</p>
+                        <ul className={`text-[9px] leading-relaxed pt-1.5 mt-1.5 border-t space-y-0.5 ${isSelected ? 'border-editorial-bg/20 text-editorial-bg/85' : 'border-editorial-border text-editorial-muted'}`}>
+                          {pkg.includes.map((item, idx) => (
+                            <li key={idx}>• {item}</li>
+                          ))}
+                        </ul>
                       </button>
                     );
                   })}
@@ -717,26 +722,33 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                 <button
                   type="button"
                   onClick={() => setSelectedPackageId('custom')}
-                  className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                  className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer ${
                     selectedPackageId === 'custom'
                       ? 'bg-editorial-text text-editorial-bg border-editorial-text shadow-sm'
                       : 'bg-editorial-bg/30 border-editorial-border hover:bg-editorial-bg/60'
                   }`}
                 >
-                  <div>
-                    <p className="font-serif font-black text-sm">Personalizado</p>
-                    <p className={`text-[10px] ${selectedPackageId === 'custom' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Define tus propias horas si tu proyecto no encaja en los paquetes anteriores.</p>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-serif font-black text-sm">Personalizado</p>
+                      <p className={`text-[10px] ${selectedPackageId === 'custom' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Define tus propias horas si tu proyecto no encaja en los paquetes anteriores.</p>
+                    </div>
+                    {selectedPackageId === 'custom' && (
+                      <input
+                        type="number"
+                        min={1}
+                        max={40}
+                        value={customHours}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => setCustomHours(Math.max(1, Math.min(40, Number(e.target.value))))}
+                        className="w-20 bg-white text-editorial-text border border-editorial-border rounded-xl p-2 text-xs text-center font-bold"
+                      />
+                    )}
                   </div>
                   {selectedPackageId === 'custom' && (
-                    <input
-                      type="number"
-                      min={1}
-                      max={40}
-                      value={customHours}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => setCustomHours(Math.max(1, Math.min(40, Number(e.target.value))))}
-                      className="w-20 bg-white text-editorial-text border border-editorial-border rounded-xl p-2 text-xs text-center font-bold"
-                    />
+                    <p className="text-[9px] text-editorial-bg/85 leading-relaxed pt-2 mt-2 border-t border-editorial-bg/20">
+                      {estimateCustomDeliverables(customHours)}
+                    </p>
                   )}
                 </button>
               </div>

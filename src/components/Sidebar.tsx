@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Briefcase, Mail, User, Settings, HelpCircle, LogOut, Plus } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Mail, User, Settings, HelpCircle, LogOut, Plus, GraduationCap } from 'lucide-react';
 import { ViewState } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -20,6 +20,7 @@ export default function Sidebar({ currentView, setView, onOpenNewProject }: Side
   const menuItems = [
     { id: 'dashboard' as ViewState, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'proyectos' as ViewState, label: isEntrepreneur ? 'Mis Proyectos' : 'Proyectos', icon: Briefcase },
+    ...(isEntrepreneur ? [{ id: 'talento' as ViewState, label: 'Talento', icon: GraduationCap }] : []),
     { id: 'mensajes' as ViewState, label: 'Mensajes', icon: Mail },
     { id: 'perfil' as ViewState, label: 'Perfil', icon: User },
     { id: 'configuracion' as ViewState, label: 'Configuración', icon: Settings },

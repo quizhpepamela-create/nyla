@@ -33,6 +33,7 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
   const [projects, setProjects] = useState<Project[]>([]);
   const [stats, setStats] = useState<MeStats>({});
   const [loading, setLoading] = useState(true);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   // Escrow Release Celebration Modal state
   const [releasingProject, setReleasingProject] = useState<Project | null>(null);
@@ -40,17 +41,29 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
   const [actionError, setActionError] = useState<string | null>(null);
   const [assigningId, setAssigningId] = useState<string | null>(null);
 
+  // Review modal state
+  const [reviewingProject, setReviewingProject] = useState<Project | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+
   const loadDashboard = async () => {
     setLoading(true);
     try {
-      const [projectsRes, statsRes] = await Promise.all([
+      const [projectsRes, statsRes, contactsRes] = await Promise.all([
         fetch('/api/projects/mine', { credentials: 'include' }),
         fetch('/api/stats/me', { credentials: 'include' }),
+        fetch('/api/messages/contacts', { credentials: 'include' }),
       ]);
       const projectsData = await projectsRes.json();
       const statsData = await statsRes.json();
       if (projectsRes.ok) setProjects(projectsData.projects);
       if (statsRes.ok) setStats(statsData);
+      if (contactsRes.ok) {
+        const contactsData = await contactsRes.json();
+        setUnreadMessages(contactsData.contacts.reduce((sum: number, c: any) => sum + c.unreadCount, 0));
+      }
     } finally {
       setLoading(false);
     }
@@ -58,6 +71,8 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
 
   useEffect(() => {
     loadDashboard();
+    const interval = setInterval(loadDashboard, 20000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleDeliver = async (projectId: string) => {
@@ -91,6 +106,35 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
     } catch (err: any) {
       setActionError(err.message);
       setShowCelebration(false);
+    }
+  };
+
+  const handleOpenReview = (project: Project) => {
+    setReviewingProject(project);
+    setReviewRating(5);
+    setReviewComment('');
+    setReviewError(null);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewingProject) return;
+    setSubmittingReview(true);
+    setReviewError(null);
+    try {
+      const res = await fetch(`/api/projects/${reviewingProject.id}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ rating: reviewRating, comment: reviewComment.trim() || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudo enviar la calificación.');
+      setProjects(prev => prev.map(p => p.id === reviewingProject.id ? { ...p, review: data.review } : p));
+      setReviewingProject(null);
+    } catch (err: any) {
+      setReviewError(err.message);
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -134,6 +178,40 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
   const awaitingDepositProjects = projects.filter(p => p.status === 'IN_PROGRESS' && p.escrowStatus === 'NONE');
   const openProjects = projects.filter(p => p.status === 'OPEN');
   const pendingApplications = projects.filter(p => p.myApplicationStatus === 'PENDING');
+  const completedProjects = projects.filter(p => p.status === 'COMPLETED');
+  const unreviewedCompleted = completedProjects.filter(p => !p.review);
+
+  const notifications: { text: string; sub: string }[] = [];
+  if (unreadMessages > 0) {
+    notifications.push({
+      text: `Tienes ${unreadMessages} mensaje(s) sin leer`,
+      sub: 'Revisa la sección de Mensajes para responder.',
+    });
+  }
+  if (activeProjects.length > 0) {
+    notifications.push({
+      text: `Tienes ${activeProjects.length} contrato(s) activo(s)`,
+      sub: 'Revisa el progreso y la garantía en custodia (Escrow) más abajo.',
+    });
+  }
+  if (!isStudent && awaitingDepositProjects.length > 0) {
+    notifications.push({
+      text: `${awaitingDepositProjects.length} contrato(s) esperando tu depósito en garantía`,
+      sub: 'El estudiante no puede empezar hasta que se confirme el pago.',
+    });
+  }
+  if (isStudent && pendingApplications.length > 0) {
+    notifications.push({
+      text: `${pendingApplications.length} postulación(es) pendiente(s) de respuesta`,
+      sub: 'Te avisaremos aquí cuando un emprendedor te asigne el proyecto.',
+    });
+  }
+  if (!isStudent && unreviewedCompleted.length > 0) {
+    notifications.push({
+      text: `${unreviewedCompleted.length} proyecto(s) completado(s) sin calificar`,
+      sub: 'Deja una review al estudiante para ayudar a otros emprendedores.',
+    });
+  }
 
   return (
     <div className="min-h-screen bg-editorial-bg pb-24 md:pb-8">
@@ -162,7 +240,7 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
               className="p-2.5 bg-editorial-bg rounded-full border border-editorial-border hover:bg-editorial-light transition-all relative cursor-pointer"
             >
               <Bell className="w-5 h-5 text-editorial-text" />
-              {hasNewNotifications && (
+              {hasNewNotifications && notifications.length > 0 && (
                 <span className="absolute top-0 right-0 w-3 h-3 bg-red-600 rounded-full border-2 border-editorial-bg"></span>
               )}
             </button>
@@ -177,14 +255,16 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
                 >
                   <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold text-editorial-text/40 border-b border-editorial-border pb-2 mb-3">Notificaciones</h4>
                   <div className="space-y-3">
-                    {activeProjects.length > 0 ? (
-                      <div className="flex gap-3 text-xs">
-                        <span className="w-2 h-2 bg-editorial-text rounded-full shrink-0 mt-1.5"></span>
-                        <div>
-                          <p className="font-bold text-editorial-text">Tienes {activeProjects.length} contrato(s) activo(s)</p>
-                          <p className="text-editorial-muted mt-0.5">Revisa el progreso y la garantía en custodia (Escrow) más abajo.</p>
+                    {notifications.length > 0 ? (
+                      notifications.map((n, idx) => (
+                        <div key={idx} className="flex gap-3 text-xs">
+                          <span className="w-2 h-2 bg-editorial-text rounded-full shrink-0 mt-1.5"></span>
+                          <div>
+                            <p className="font-bold text-editorial-text">{n.text}</p>
+                            <p className="text-editorial-muted mt-0.5">{n.sub}</p>
+                          </div>
                         </div>
-                      </div>
+                      ))
                     ) : (
                       <p className="text-xs text-editorial-muted">Sin notificaciones nuevas por ahora.</p>
                     )}
@@ -448,6 +528,89 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
           </div>
         </section>
       )}
+
+      {/* Entrepreneur: completed projects — leave a review */}
+      {!isStudent && completedProjects.length > 0 && (
+        <section className="mb-12 space-y-4">
+          <div className="flex gap-2 items-center pb-2.5 border-b border-editorial-border">
+            <BadgeCheck className="w-5 h-5 text-editorial-text" />
+            <h3 className="text-2xl font-serif font-bold text-editorial-text">Proyectos Completados</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {completedProjects.map(project => (
+              <div key={project.id} className="bg-editorial-bg rounded-[24px] border border-editorial-border p-5 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-serif font-bold text-sm text-editorial-text">{project.title}</h4>
+                    <p className="text-[10px] text-editorial-muted">
+                      Estudiante: {project.student?.studentProfile?.fullName ?? 'N/D'}
+                    </p>
+                  </div>
+                  <span className="text-xs font-serif font-bold text-editorial-text">${project.budget.toFixed(2)}</span>
+                </div>
+                {project.review ? (
+                  <div className="bg-white p-3 rounded-xl border border-editorial-border text-xs space-y-1">
+                    <div className="flex items-center gap-0.5 text-amber-500">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span key={i}>{i < project.review!.rating ? '★' : '☆'}</span>
+                      ))}
+                    </div>
+                    {project.review.comment && <p className="text-editorial-muted italic">"{project.review.comment}"</p>}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenReview(project)}
+                    className="w-full py-2.5 border border-editorial-border text-editorial-text font-bold rounded-full text-[10px] uppercase tracking-[0.15em] hover:bg-editorial-light transition-all cursor-pointer"
+                  >
+                    Dejar Review al Estudiante
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Review Modal */}
+      <AnimatePresence>
+        {reviewingProject && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setReviewingProject(null)}
+              className="absolute inset-0 bg-editorial-text/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-white w-full max-w-md rounded-[28px] border border-editorial-border p-6 space-y-4 z-10"
+            >
+              <h4 className="font-serif font-black text-lg text-editorial-text">Calificar a {reviewingProject.student?.studentProfile?.fullName ?? 'estudiante'}</h4>
+              <div className="flex gap-1.5 justify-center text-3xl text-amber-500">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <button key={i} type="button" onClick={() => setReviewRating(i + 1)} className="cursor-pointer bg-transparent border-none">
+                    {i < reviewRating ? '★' : '☆'}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                rows={3}
+                placeholder="Comentario (opcional)"
+                className="w-full bg-editorial-bg border border-editorial-border rounded-xl p-3 text-xs focus:ring-1 focus:ring-editorial-text focus:outline-none text-editorial-text"
+              />
+              {reviewError && <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-2.5">{reviewError}</p>}
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setReviewingProject(null)} className="flex-1 py-2.5 border border-editorial-border text-editorial-text font-bold rounded-full text-[10px] uppercase tracking-[0.15em] cursor-pointer bg-transparent">Cancelar</button>
+                <button type="button" onClick={handleSubmitReview} disabled={submittingReview} className="flex-1 py-2.5 bg-editorial-text text-editorial-bg font-bold rounded-full text-[10px] uppercase tracking-[0.15em] cursor-pointer disabled:opacity-50 border-none">
+                  {submittingReview ? 'Enviando...' : 'Enviar Review'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Entrepreneur: open projects + applicants */}
       {!isStudent && openProjects.length > 0 && (

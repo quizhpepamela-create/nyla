@@ -1,4 +1,4 @@
-export type ViewState = 'landing' | 'dashboard' | 'proyectos' | 'mensajes' | 'perfil' | 'configuracion' | 'contratacion' | 'login' | 'register' | 'forgot-password' | 'reset-password';
+export type ViewState = 'landing' | 'dashboard' | 'proyectos' | 'mensajes' | 'perfil' | 'configuracion' | 'contratacion' | 'talento' | 'admin' | 'login' | 'register' | 'forgot-password' | 'reset-password';
 
 export type UserRole = 'STUDENT' | 'ENTREPRENEUR' | 'ADMIN';
 
@@ -91,9 +91,54 @@ export interface Project {
   updatedAt: string;
   // Joined convenience fields, present depending on which endpoint returned this project.
   entrepreneurName?: string | null;
+  entrepreneurCategory?: string | null;
+  entrepreneurDescription?: string | null;
+  entrepreneurLogoUrl?: string | null;
   student?: { id: string; studentProfile: StudentProfileData | null } | null;
   applications?: ApplicationData[];
   myApplicationStatus?: ApplicationStatus | null;
+  review?: ProjectReview | null;
+}
+
+export interface StudentDirectoryEntry {
+  id: string;
+  fullName: string;
+  photoUrl: string | null;
+  university: string | null;
+  career: string | null;
+  skills: string[];
+  experience: string | null;
+  portfolioUrl: string | null;
+  availability: string | null;
+  reviewCount: number;
+  reviewAverage: number | null;
+  completedProjectsCount: number;
+}
+
+export interface StudentReviewEntry {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  businessName: string;
+}
+
+export interface StudentDetail {
+  student: StudentDirectoryEntry & { semester?: string | null };
+  completedProjects: Array<{ id: string; title: string; description: string; budget: number; estimatedHours: number; updatedAt: string }>;
+  reviews: StudentReviewEntry[];
+  reviewCount: number;
+  reviewAverage: number | null;
+}
+
+export interface ProjectReview {
+  id: string;
+  projectId: string;
+  studentId: string;
+  entrepreneurId: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
 }
 
 export interface ApplicationData {

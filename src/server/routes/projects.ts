@@ -60,6 +60,9 @@ router.get("/", requireAuth, async (req, res) => {
     projects: projects.map((p: any) => ({
       ...p,
       entrepreneurName: p.entrepreneur.entrepreneurProfile?.businessName ?? null,
+      entrepreneurCategory: p.entrepreneur.entrepreneurProfile?.category ?? null,
+      entrepreneurDescription: p.entrepreneur.entrepreneurProfile?.description ?? null,
+      entrepreneurLogoUrl: p.entrepreneur.entrepreneurProfile?.logoUrl ?? null,
       entrepreneur: undefined,
       myApplicationStatus: p.applications?.[0]?.status ?? null,
       applications: undefined,
@@ -77,6 +80,7 @@ router.get("/mine", requireAuth, async (req, res) => {
       include: {
         student: { include: { studentProfile: true } },
         applications: { include: { student: { include: { studentProfile: true } } } },
+        review: true,
       },
     });
     return res.json({ projects });
@@ -220,6 +224,48 @@ router.post("/:id/deliver", requireAuth, async (req, res) => {
     data: { progress: 100 },
   });
   res.json({ project: updated });
+});
+
+const reviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().max(1000).optional(),
+});
+
+router.post("/:id/review", requireAuth, async (req, res) => {
+  if (req.session!.role !== "ENTREPRENEUR") {
+    return res.status(403).json({ error: "Solo los emprendedores pueden calificar a un estudiante." });
+  }
+  const parsed = reviewSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Datos inválidos.", details: parsed.error.flatten() });
+  }
+
+  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+  if (!project) return res.status(404).json({ error: "Proyecto no encontrado." });
+  if (project.entrepreneurId !== req.session!.userId) {
+    return res.status(403).json({ error: "No tienes acceso a este proyecto." });
+  }
+  if (project.status !== "COMPLETED" || !project.studentId) {
+    return res.status(400).json({ error: "Solo puedes calificar proyectos completados." });
+  }
+
+  try {
+    const review = await prisma.review.create({
+      data: {
+        projectId: project.id,
+        studentId: project.studentId,
+        entrepreneurId: req.session!.userId,
+        rating: parsed.data.rating,
+        comment: parsed.data.comment,
+      },
+    });
+    res.status(201).json({ review });
+  } catch (err: any) {
+    if (err.code === "P2002") {
+      return res.status(409).json({ error: "Ya calificaste este proyecto." });
+    }
+    throw err;
+  }
 });
 
 // Escrow release (real Stripe transfer to the student's Connect account) lives in
