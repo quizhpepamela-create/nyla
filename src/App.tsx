@@ -114,6 +114,13 @@ export default function App() {
     return <ResetPasswordPage setView={setView} />;
   }
 
+  // Admins never see the public marketing landing (it's built around student/entrepreneur
+  // CTAs like "Postular" or "Buscar match" that don't apply to their account) — they always
+  // land straight on their panel.
+  if (user?.role === 'ADMIN') {
+    return <AdminDashboard setView={setView} />;
+  }
+
   if (currentView === 'landing' || !user) {
     return (
       <>
@@ -121,10 +128,6 @@ export default function App() {
         <ChatbotWidget />
       </>
     );
-  }
-
-  if (user.role === 'ADMIN') {
-    return <AdminDashboard setView={setView} />;
   }
 
   const renderActiveView = () => {

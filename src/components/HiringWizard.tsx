@@ -805,7 +805,7 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                   <ul className="list-disc pl-5 space-y-1">
                     <li><strong>Estudiante:</strong> {selectedStudent.name} ({selectedStudent.career})</li>
                     <li><strong>Emprendedor:</strong> {entrepreneurName} (Socio Colaborador del Portal Universitario NYLA)</li>
-                    <li><strong>Plataforma Intermediaria:</strong> NYLA Corp (Academic Talent Hub)</li>
+                    <li><strong>Plataforma Intermediaria:</strong> NYLA Corp (Navega las metas de tu vida)</li>
                   </ul>
                 </div>
 

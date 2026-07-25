@@ -33,10 +33,18 @@ interface AdminStats {
   userCount: number;
   studentCount: number;
   entrepreneurCount: number;
+  activeUserCount: number;
   projectCount: number;
+  openCount: number;
+  inProgressCount: number;
+  completedCount: number;
   releasedCount: number;
+  heldCount: number;
   totalCommission: number;
   totalPaidToStudents: number;
+  totalEscrowHeld: number;
+  reviewCount: number;
+  platformReviewAverage: number | null;
 }
 
 interface AdminReview {
@@ -164,19 +172,36 @@ export default function AdminDashboard({ setView }: AdminDashboardProps) {
             <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">Usuarios ({stats.studentCount} estudiantes, {stats.entrepreneurCount} emprendedores)</p>
           </div>
           <div className="bg-white p-6 rounded-[24px] border border-editorial-border space-y-2">
+            <CheckCircle2 className="w-5 h-5 text-editorial-text" />
+            <p className="text-3xl font-serif font-black text-editorial-text">{stats.activeUserCount}</p>
+            <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">Cuentas activas (no bloqueadas)</p>
+          </div>
+          <div className="bg-white p-6 rounded-[24px] border border-editorial-border space-y-2">
             <Briefcase className="w-5 h-5 text-editorial-text" />
             <p className="text-3xl font-serif font-black text-editorial-text">{stats.projectCount}</p>
-            <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">Proyectos publicados ({stats.releasedCount} pagados)</p>
+            <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">
+              Proyectos ({stats.openCount} abiertos, {stats.inProgressCount} en progreso, {stats.completedCount} completados)
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-[24px] border border-editorial-border space-y-2">
+            <Star className="w-5 h-5 text-amber-500" />
+            <p className="text-3xl font-serif font-black text-editorial-text">{stats.platformReviewAverage ?? '—'}</p>
+            <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">Calificación promedio ({stats.reviewCount} reviews)</p>
           </div>
           <div className="bg-white p-6 rounded-[24px] border border-editorial-border space-y-2">
             <DollarSign className="w-5 h-5 text-editorial-text" />
             <p className="text-3xl font-serif font-black text-editorial-text">${stats.totalCommission.toFixed(2)}</p>
-            <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">Comisión total de NYLA</p>
+            <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">Comisión total de NYLA ({stats.releasedCount} pagados)</p>
           </div>
           <div className="bg-white p-6 rounded-[24px] border border-editorial-border space-y-2">
             <DollarSign className="w-5 h-5 text-editorial-accent" />
             <p className="text-3xl font-serif font-black text-editorial-text">${stats.totalPaidToStudents.toFixed(2)}</p>
             <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">Pagado a estudiantes</p>
+          </div>
+          <div className="bg-white p-6 rounded-[24px] border border-editorial-border space-y-2">
+            <DollarSign className="w-5 h-5 text-blue-600" />
+            <p className="text-3xl font-serif font-black text-editorial-text">${stats.totalEscrowHeld.toFixed(2)}</p>
+            <p className="text-[10px] uppercase tracking-wider text-editorial-muted font-bold">En garantía ahora ({stats.heldCount} contratos)</p>
           </div>
         </div>
       )}

@@ -35,7 +35,7 @@ export default function Sidebar({ currentView, setView, onOpenNewProject }: Side
       >
         <div className="mb-10 px-4 pt-4">
           <h1 className="text-2xl font-serif font-black text-editorial-text tracking-tighter">NYLA.</h1>
-          <p className="text-[9px] font-bold tracking-[0.15em] uppercase text-editorial-muted mt-1">Academic Talent Hub</p>
+          <p className="text-[9px] font-bold tracking-[0.15em] uppercase text-editorial-muted mt-1">Navega las metas de tu vida</p>
         </div>
 
         <nav className="flex-1 space-y-2">

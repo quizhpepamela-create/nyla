@@ -30,7 +30,7 @@ async function send(to: string, subject: string, html: string) {
 
 const wrapper = (title: string, bodyHtml: string) => `
   <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-    <p style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8a8a8a; margin: 0 0 24px;">NYLA · Academic Talent Hub</p>
+    <p style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8a8a8a; margin: 0 0 24px;">NYLA · Navega las metas de tu vida</p>
     <h1 style="font-size: 24px; margin: 0 0 16px;">${title}</h1>
     ${bodyHtml}
     <p style="font-size: 11px; color: #8a8a8a; margin-top: 32px;">Este correo fue enviado por NYLA. Si no reconoces esta actividad, ignora este mensaje.</p>

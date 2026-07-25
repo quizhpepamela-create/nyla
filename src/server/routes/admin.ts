@@ -82,27 +82,56 @@ router.get("/projects", requireAuth, async (req, res) => {
 router.get("/stats", requireAuth, async (req, res) => {
   if (!requireAdmin(req, res)) return;
 
-  const [userCount, studentCount, entrepreneurCount, projectCount, releasedProjects] = await Promise.all([
+  const [
+    userCount,
+    studentCount,
+    entrepreneurCount,
+    projectCount,
+    openCount,
+    inProgressCount,
+    completedCount,
+    heldProjects,
+    releasedProjects,
+    allReviews,
+    activeToday,
+  ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { role: "STUDENT" } }),
     prisma.user.count({ where: { role: "ENTREPRENEUR" } }),
     prisma.project.count(),
+    prisma.project.count({ where: { status: "OPEN" } }),
+    prisma.project.count({ where: { status: "IN_PROGRESS" } }),
+    prisma.project.count({ where: { status: "COMPLETED" } }),
+    prisma.project.findMany({ where: { escrowStatus: "HELD" }, select: { budget: true } }),
     prisma.project.findMany({ where: { escrowStatus: "RELEASED" }, select: { estimatedHours: true } }),
+    prisma.review.findMany({ select: { rating: true } }),
+    prisma.user.count({ where: { isActive: true } }),
   ]);
 
   const totalCommission = Number((releasedProjects.length * NYLA_FIXED_FEE).toFixed(2));
   const totalPaidToStudents = Number(
     releasedProjects.reduce((sum, p) => sum + calculateStudentPayout(p.estimatedHours), 0).toFixed(2)
   );
+  const totalEscrowHeld = Number(heldProjects.reduce((sum, p) => sum + p.budget, 0).toFixed(2));
+  const platformReviewAverage =
+    allReviews.length > 0 ? Number((allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)) : null;
 
   res.json({
     userCount,
     studentCount,
     entrepreneurCount,
+    activeUserCount: activeToday,
     projectCount,
+    openCount,
+    inProgressCount,
+    completedCount,
     releasedCount: releasedProjects.length,
+    heldCount: heldProjects.length,
     totalCommission,
     totalPaidToStudents,
+    totalEscrowHeld,
+    reviewCount: allReviews.length,
+    platformReviewAverage,
   });
 });
 
