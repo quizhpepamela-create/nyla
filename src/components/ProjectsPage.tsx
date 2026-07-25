@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Search, Clock, X, Briefcase, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, ViewState } from '../types';
-import { HOURLY_RATE } from '../constants';
+import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, calculateStudentPayout } from '../constants';
 import { useAuth } from '../context/AuthContext';
 
 interface ProjectsPageProps {
@@ -399,27 +399,26 @@ export default function ProjectsPage({ setView }: ProjectsPageProps) {
                   </p>
                 </div>
 
-                {/* Real-time Business Model / Payment breakdown with 20% commission */}
+                {/* Real-time earnings preview for the proposed hours */}
                 <div className="space-y-3 pt-2">
                   <span className="text-[10px] uppercase tracking-wider font-bold text-editorial-muted block">LIQUIDACIÓN FINANCIERA DE LA POSTULACIÓN</span>
 
                   <div className="bg-editorial-bg/50 p-4 rounded-2xl border border-editorial-border border-dashed text-xs space-y-2.5 font-sans leading-relaxed">
                     <div className="flex justify-between">
                       <span className="text-editorial-muted">Tarifa de Estudiante Fija:</span>
-                      <strong className="text-editorial-text">${HOURLY_RATE.toFixed(2)} USD / hora</strong>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-editorial-muted">Presupuesto propuesto ({customHours} horas × ${HOURLY_RATE.toFixed(2)}):</span>
-                      <strong className="text-editorial-text">${(customHours * HOURLY_RATE).toFixed(2)} USD</strong>
+                      <strong className="text-editorial-text">${STUDENT_HOURLY_RATE.toFixed(2)} USD / hora</strong>
                     </div>
                     <div className="flex justify-between border-b border-editorial-border/60 pb-2 mb-1.5">
-                      <span className="text-editorial-muted">Comisión de la Plataforma NYLA (20%):</span>
-                      <strong className="text-red-700">-${(customHours * HOURLY_RATE * 0.20).toFixed(2)} USD</strong>
+                      <span className="text-editorial-muted">Horas propuestas:</span>
+                      <strong className="text-editorial-text">{customHours} {customHours === 1 ? 'hora' : 'horas'}</strong>
                     </div>
                     <div className="flex justify-between font-serif font-bold text-sm text-editorial-accent">
-                      <span>Importe Neto para Ti (80%):</span>
-                      <span>${(customHours * HOURLY_RATE * 0.80).toFixed(2)} USD</span>
+                      <span>Recibirías por este trabajo:</span>
+                      <span>${calculateStudentPayout(customHours).toFixed(2)} USD</span>
                     </div>
+                    <p className="text-[9px] text-editorial-muted italic pt-1">
+                      *La comisión fija de NYLA (${NYLA_FIXED_FEE.toFixed(2)}) la paga el emprendedor por separado; no se descuenta de tu pago.
+                    </p>
                   </div>
                 </div>
 

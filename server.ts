@@ -79,11 +79,11 @@ Debes poder responder con precisión estas preguntas frecuentes:
 - Cómo registrarse: hay dos tipos de cuenta (Estudiante y Emprendedor). Se crean desde "Registrarse", eligiendo el rol, completando correo y contraseña, y los datos básicos del perfil (para estudiantes: nombre, universidad, carrera; para emprendedores: nombre del emprendimiento y categoría). Luego se puede completar el resto del perfil desde "Mi Perfil".
 - Cómo funciona la plataforma: el emprendedor publica una oportunidad describiendo lo que necesita; el sistema de match analiza carrera, habilidades, experiencia y disponibilidad para sugerir los estudiantes más compatibles; el emprendedor contrata, se firma un contrato digital y el pago queda retenido en garantía (Escrow) hasta aprobar la entrega.
 - Métodos de pago: los pagos se gestionan dentro de la plataforma mediante la pasarela de NYLA (tarjeta de crédito/débito y otros métodos habilitados). El dinero del emprendedor queda retenido en Escrow y se libera al estudiante solo cuando se aprueba el trabajo entregado.
-- Tarifas: la tarifa fija del estudiante es de $10.54 USD por hora. NYLA retiene automáticamente una comisión de servicio del 20% sobre cada contratación; el estudiante recibe el 80% restante.
+- Tarifas: NYLA cobra una comisión fija de $10.57 USD por proyecto, sin importar su tamaño (no es un porcentaje). El estudiante cobra una tarifa fija de $5.00 USD por hora trabajada. El precio total que paga el emprendedor es $10.57 + (horas del proyecto × $5.00). Existen 3 paquetes sugeridos: Simple (2h, $20.57 total), Intermedio (4h, $30.57 total) y Elaborado (6h, $40.57 total), además de la opción de personalizar las horas.
 - Uso del sistema: desde el Dashboard se ven proyectos recomendados, postulaciones y contratos activos; desde "Proyectos" se exploran y aplican oportunidades; desde "Mensajes" se chatea con la contraparte; desde "Mi Perfil" se edita la información propia.
 - Soporte básico: si el usuario tiene un problema que no puedes resolver, indícale que puede escribir por el botón de WhatsApp Business visible en la plataforma.
 
-Si te piden redactar un contrato o acuerdo, genera un desglose formal con secciones claras como: Partes, Servicio, Monto, Plazo y Entregables, usando la tarifa fija de $10.54/hora y la comisión del 20% cuando corresponda.
+Si te piden redactar un contrato o acuerdo, genera un desglose formal con secciones claras como: Partes, Servicio, Monto, Plazo y Entregables, usando la tarifa fija de $5.00/hora para el estudiante y la comisión fija de $10.57 de NYLA cuando corresponda.
 `;
 
     if (!client) {
@@ -96,7 +96,7 @@ Si te piden redactar un contrato o acuerdo, genera un desglose formal con seccio
       if (lower.includes("registr")) {
         reply = "Para registrarte, ve a **Registrarse** en la portada, elige si eres **Estudiante** o **Emprendedor**, y completa tu correo, contraseña y los datos básicos de tu perfil. Luego podrás ampliar tu perfil desde \"Mi Perfil\".";
       } else if (lower.includes("tarifa") || lower.includes("cuánto cobra") || lower.includes("precio") || lower.includes("comisión") || lower.includes("comision")) {
-        reply = "La tarifa fija para estudiantes es de **$10.54 USD/hora**. NYLA retiene una comisión de servicio del **20%** por cada contratación, así que el estudiante recibe el 80% neto.";
+        reply = "La tarifa fija para estudiantes es de **$5.00 USD/hora**. NYLA cobra una comisión fija de **$10.57 USD** por proyecto (no un porcentaje), así que el precio total es $10.57 + (horas × $5.00). Hay 3 paquetes sugeridos: Simple (2h), Intermedio (4h) y Elaborado (6h), o puedes personalizar las horas.";
       } else if (lower.includes("pago") || lower.includes("escrow") || lower.includes("garant")) {
         reply = "Los pagos se hacen dentro de la plataforma: el emprendedor deposita el monto del contrato y NYLA lo retiene en garantía (**Escrow**). El dinero se libera al estudiante automáticamente una vez que el emprendedor aprueba la entrega.";
       } else if (lower.includes("funciona") || lower.includes("match")) {
@@ -104,7 +104,7 @@ Si te piden redactar un contrato o acuerdo, genera un desglose formal con seccio
       } else if (lower.includes("soporte") || lower.includes("ayuda") || lower.includes("whatsapp")) {
         reply = "Puedes escribirnos directamente por el botón de **WhatsApp Business** visible en la plataforma y te ayudaremos de inmediato.";
       } else if (lower.includes("contrato") || lower.includes("desarrollador") || lower.includes("genera")) {
-        reply = `### Contrato de Colaboración Digital #294\n\n**Partes:** NYLA Corp & Estudiante  \n**Servicio:** Desarrollo Frontend React  \n**Monto:** $84.32 USD (8 horas × $10.54/hora)  \n**Plazo:** 28 Días Naturales  \n\nHe generado esta propuesta estándar. En un entorno real con la API Key de Gemini activa, puedo redactar contratos totalmente personalizados con cláusulas legales específicas. ¿Te gustaría ajustar el presupuesto o el plazo de entrega?`;
+        reply = `### Contrato de Colaboración Digital #294\n\n**Partes:** NYLA Corp & Estudiante  \n**Servicio:** Desarrollo Frontend React  \n**Monto:** $30.57 USD (paquete Intermedio: 4 horas × $5.00/hora + comisión fija NYLA $10.57)  \n**Plazo:** 28 Días Naturales  \n\nHe generado esta propuesta estándar. En un entorno real con la API Key de Gemini activa, puedo redactar contratos totalmente personalizados con cláusulas legales específicas. ¿Te gustaría ajustar el presupuesto o el plazo de entrega?`;
       } else if (lower.includes("hola") || lower.includes("saludos")) {
         reply = "¡Hola! Soy **NYLA AI Guide**. Puedo ayudarte con el registro, cómo funciona el match, métodos de pago, tarifas, uso del sistema o redactar un contrato de ejemplo. *(Nota: la clave de Gemini no está activa, así que respondo en modo simulado local, pero todas las pantallas y flujos son funcionales.)* ¿En qué te ayudo?";
       } else {

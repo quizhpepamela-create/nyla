@@ -3,6 +3,7 @@ import { Send, Rocket, Landmark, Bell, Lightbulb, ChevronRight, CheckCircle2, Ho
 import { motion, AnimatePresence } from 'motion/react';
 import { ViewState, Project, StudentProfileData, EntrepreneurProfileData } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { NYLA_FIXED_FEE, calculateStudentPayout } from '../constants';
 
 interface DashboardProps {
   setView: (view: ViewState) => void;
@@ -278,6 +279,26 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
         </div>
       )}
 
+      {/* First-time entrepreneur onboarding: no projects published yet */}
+      {!loading && !isStudent && projects.length === 0 && (
+        <div className="mb-12 bg-editorial-text text-editorial-bg rounded-[32px] p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-editorial-bg/60">Primeros pasos</span>
+            <h3 className="text-2xl font-serif font-black">Cuéntanos de qué va tu negocio</h3>
+            <p className="text-xs text-editorial-bg/80 leading-relaxed">
+              Dinos el nombre de tu emprendimiento, a qué se dedica y qué necesitas. Con eso, nuestro match inteligente analiza a los estudiantes registrados y te muestra al candidato más compatible con un porcentaje de coincidencia real.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenNewProject}
+            className="shrink-0 bg-editorial-bg text-editorial-text px-6 py-3 rounded-full font-bold text-[11px] uppercase tracking-[0.15em] hover:opacity-90 transition-all cursor-pointer flex items-center gap-2"
+          >
+            <Rocket className="w-4 h-4" /> Describir mi negocio y ver mi match
+          </button>
+        </div>
+      )}
+
       {actionError && (
         <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3 mb-8">{actionError}</p>
       )}
@@ -375,7 +396,7 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
                   <div className="bg-editorial-bg p-3.5 rounded-xl text-[11px] leading-relaxed text-editorial-text flex gap-2">
                     <CheckCircle2 className="w-4 h-4 text-editorial-accent shrink-0 mt-0.5" />
                     <div>
-                      <strong>Garantía NYLA Activa:</strong> Los fondos se encuentran retenidos temporalmente de forma segura. Tras la aprobación, se restará el 20% de comisión.
+                      <strong>Garantía NYLA Activa:</strong> Los fondos se encuentran retenidos temporalmente de forma segura. Tras la aprobación, NYLA retiene su comisión fija de ${NYLA_FIXED_FEE.toFixed(2)}.
                     </div>
                   </div>
 
@@ -582,12 +603,12 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
                     <strong className="text-editorial-text">${releasingProject.budget.toFixed(2)} USD</strong>
                   </div>
                   <div className="flex justify-between border-b border-editorial-border/60 pb-2.5 mb-2">
-                    <span className="text-editorial-muted">Comisión de Servicio NYLA (20%):</span>
-                    <strong className="text-red-700">-${(releasingProject.budget * 0.20).toFixed(2)} USD</strong>
+                    <span className="text-editorial-muted">Comisión Fija de Servicio NYLA:</span>
+                    <strong className="text-red-700">-${NYLA_FIXED_FEE.toFixed(2)} USD</strong>
                   </div>
                   <div className="flex justify-between font-serif font-black text-sm text-editorial-accent">
                     <span>Monto Neto Liberado al Estudiante:</span>
-                    <span>${(releasingProject.budget * 0.80).toFixed(2)} USD</span>
+                    <span>${calculateStudentPayout(releasingProject.estimatedHours).toFixed(2)} USD</span>
                   </div>
                 </div>
               </div>

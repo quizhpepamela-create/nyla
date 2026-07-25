@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ViewState } from '../types';
-import { HOURLY_RATE } from '../constants';
+import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE } from '../constants';
 
 // @ts-ignore
 import grafitoWearLogo from '../assets/images/grafito_wear_logo_1784684755052.jpg';
@@ -71,7 +71,7 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCg-sYd74mPtldBVLjpMlInRZpS-FvyONN-uEnSbU5vVhIMzgq1_nliHBmaDbOMJD6R0Vtrp-71v-t-N0l2Fi3itvfMNYHSX8XBlLq41trEqzFB1up1u-kbIYaqYU2O0R1iiffM2KBBBkS1q8nIZwwdlFTFReP6Uj4IxFhJa1GZB6pM4j75ZCuovgwg7vTUP_aJAqltVKtJArj5AayWm1kmDLUGpqFUOP2ekK9iac2W2wn32zwj-SFSIP6O_CM7qWrOKFPY2SIBlZn',
     rating: 4.9,
     reviewsCount: 42,
-    rate: HOURLY_RATE,
+    rate: STUDENT_HOURLY_RATE,
     category: 'web',
     skills: ['Figma', 'Canva', 'Instagram', 'Branding', 'Ilustración'],
     bio: 'Me especializo en diseñar feeds de Instagram atractivos, logotipos vectoriales y materiales para marcas de moda urbana e independientes.',
@@ -137,7 +137,7 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA08kpLxAzrQpj-rebgESm964d7GAAlPgI04OfTPv_HWHvCAOnJgwWnI3BZnYz6UGMuNzO1-KZyZjb9SIb68W7BSGT-XiNqHZ9LQOrFNsSOp8HQjetkILTGWZaD2s3HzkMQL0XPQ9k2Svj2BG0B5grs3joKAXOkAKw1ahZ48rnpOjXPBhVb6YkqcUf0_mKMhuwC5eefKzq_OeQXepgVxV1NRt-ZU7rAwYaXBJPumV0GGyYoK-Dqu1qWGWSzq7YittTqUxqJEdzJwaw_',
     rating: 4.8,
     reviewsCount: 31,
-    rate: HOURLY_RATE,
+    rate: STUDENT_HOURLY_RATE,
     category: 'data',
     skills: ['TikTok', 'Facebook Ads', 'CapCut', 'Edición de Video', 'Storytelling'],
     bio: 'Nos contactamos con Grafito mediante Facebook porque el dueño necesitaba publicidad en TikTok. Él había dejado su cuenta inactiva desde el 2025 pero quería volver a las redes sociales, y ya tenía algo de seguidores. Así que nosotros le hicimos la publicidad para TikTok y también para Facebook con excelentes resultados.',
@@ -169,7 +169,7 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA3IAbmw7mPDpl0mdfym-FTgFUC-ZZo-wq2i38wBAkO1UWbfLZglso3CXrfrAsKp5iozkNaziyaOE_pTXXuQv0CmuM4eVrO1x1qqAEfOQi6VUKJUq9rbxY9UXFdqRTr1i_JaDGUjO-wi6bYZhl05ME4NWgV85JItvwi7AZy6W44a9J5P8OCxAWqsKozS2rZBirTSbWsZFeRdx1jkZB9UohsIORsH1OtWYS4QoLHpfme8TvpUdxTUWhJjaivDg-yOrI0nOZCFBjdTliO',
     rating: 5.0,
     reviewsCount: 25,
-    rate: HOURLY_RATE,
+    rate: STUDENT_HOURLY_RATE,
     category: 'uiux',
     skills: ['Illustrator', 'Estampados', 'Figma', 'Moda Urbana'],
     bio: 'Me dedico a crear patrones de estampado textiles e ilustraciones vectoriales con estilo juvenil para serigrafía de camisetas.',
@@ -295,7 +295,7 @@ export default function LandingPage({ setView }: LandingPageProps) {
       } else if (type === 'escrow') {
         text = '🔒 *NOTIFICACIÓN NYLA BUSINESS:* Los fondos de *$800.00 USD* han sido depositados exitosamente en la cuenta de garantía segura (Escrow). Estarán retenidos hasta la aprobación de la entrega final.';
       } else {
-        text = '💰 *NOTIFICACIÓN NYLA BUSINESS:* El Emprendedor ha autorizado la liberación de fondos. Se han transferido *$640.00 USD* netos al estudiante Elena Valery (deducida la comisión del 20% de NYLA).';
+        text = '💰 *NOTIFICACIÓN NYLA BUSINESS:* El Emprendedor ha autorizado la liberación de fondos. Se han transferido los fondos correspondientes al estudiante Elena Valery (NYLA retuvo su comisión fija de $10.57).';
       }
       
       setWhatsAppMessages(prev => [
@@ -322,9 +322,9 @@ export default function LandingPage({ setView }: LandingPageProps) {
       let reply = '';
       const textLower = userText.toLowerCase();
       if (textLower.includes('hola') || textLower.includes('buenas')) {
-        reply = '¡Hola! Es un gusto atenderte. Soy el bot de NYLA Business. Puedo ayudarte simulando alertas o resolviendo dudas rápidas sobre la comisión del 20% o garantías Escrow.';
+        reply = '¡Hola! Es un gusto atenderte. Soy el bot de NYLA Business. Puedo ayudarte simulando alertas o resolviendo dudas rápidas sobre nuestra comisión fija o garantías Escrow.';
       } else if (textLower.includes('pago') || textLower.includes('comision') || textLower.includes('comisión')) {
-        reply = 'En NYLA cobramos una comisión de servicio del 20% sobre el total del proyecto al momento de la liberación. El resto (80%) va íntegro para el estudiante universitario.';
+        reply = 'En NYLA cobramos una comisión fija de $10.57 USD por proyecto, sin importar su tamaño. El resto del pago va íntegro para el estudiante universitario, a $5.00 USD por hora trabajada.';
       } else if (textLower.includes('payphone') || textLower.includes('metodo')) {
         reply = 'Soportamos cobros por PayPhone, tarjetas de crédito/débito, PayPal, Apple Pay, Google Pay y transferencia bancaria directa. ¡Todo integrado en nuestra pasarela!';
       } else {
@@ -478,11 +478,11 @@ export default function LandingPage({ setView }: LandingPageProps) {
 
               <div className="grid grid-cols-3 gap-4 pt-6 border-t border-editorial-border/60">
                 <div>
-                  <h4 className="text-2xl font-serif font-bold text-editorial-text">20%</h4>
-                  <p className="text-[9px] uppercase tracking-wider text-editorial-muted">Comisión NYLA</p>
+                  <h4 className="text-2xl font-serif font-bold text-editorial-text">${NYLA_FIXED_FEE.toFixed(2)}</h4>
+                  <p className="text-[9px] uppercase tracking-wider text-editorial-muted">Comisión Fija NYLA</p>
                 </div>
                 <div>
-                  <h4 className="text-2xl font-serif font-bold text-editorial-text">${HOURLY_RATE.toFixed(2)}</h4>
+                  <h4 className="text-2xl font-serif font-bold text-editorial-text">${STUDENT_HOURLY_RATE.toFixed(2)}</h4>
                   <p className="text-[9px] uppercase tracking-wider text-editorial-muted">Tarifa Fija / Hora</p>
                 </div>
                 <div>

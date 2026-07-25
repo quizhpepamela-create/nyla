@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "../db";
 import { requireAuth } from "../auth";
 import { scoreStudent } from "../match";
-import { HOURLY_RATE } from "../../constants";
+import { STUDENT_HOURLY_RATE, calculatePVP } from "../../constants";
 
 const router = Router();
 
@@ -24,8 +24,8 @@ router.post("/", requireAuth, async (req, res) => {
     return res.status(400).json({ error: "Datos inválidos.", details: parsed.error.flatten() });
   }
   const { title, description, requiredCareer, requiredSkills, estimatedHours } = parsed.data;
-  const hourlyRate = HOURLY_RATE;
-  const budget = Number((estimatedHours * hourlyRate).toFixed(2));
+  const hourlyRate = STUDENT_HOURLY_RATE;
+  const budget = calculatePVP(estimatedHours);
 
   const project = await prisma.project.create({
     data: {

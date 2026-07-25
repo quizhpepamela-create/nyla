@@ -2,6 +2,7 @@ import { Router, RequestHandler } from "express";
 import { prisma } from "../db";
 import { requireAuth } from "../auth";
 import { getStripeClient, toStripeAmount } from "../stripe";
+import { calculateStudentPayout } from "../../constants";
 
 const router = Router();
 
@@ -174,8 +175,9 @@ router.post("/projects/:id/confirm", requireAuth, asyncRoute(async (req, res) =>
   res.json({ project: updated });
 }));
 
-// Releases the escrowed funds: transfers 80% of the budget to the student's connected
-// account. The remaining 20% commission simply stays in the platform's Stripe balance.
+// Releases the escrowed funds: transfers the student's fixed hourly pay (estimatedHours
+// x $5.00) to their connected account. NYLA's flat $10.57 fee is the remainder, which
+// simply stays in the platform's Stripe balance.
 router.post("/projects/:id/release", requireAuth, asyncRoute(async (req, res) => {
   const stripe = requireStripe(res);
   if (!stripe) return;
@@ -200,7 +202,7 @@ router.post("/projects/:id/release", requireAuth, asyncRoute(async (req, res) =>
     return res.status(400).json({ error: "El estudiante no tiene una cuenta de pagos conectada." });
   }
 
-  const netAmount = Number((project.budget * 0.8).toFixed(2));
+  const netAmount = calculateStudentPayout(project.estimatedHours);
   const transfer = await stripe.transfers.create({
     amount: toStripeAmount(netAmount),
     currency: "usd",

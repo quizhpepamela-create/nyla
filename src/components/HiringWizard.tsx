@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, ChevronRight, Sparkles, Shield, ArrowLeft, CheckCircle2, PenTool, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, ViewState, MatchCandidate, EntrepreneurProfileData } from '../types';
-import { HOURLY_RATE } from '../constants';
+import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout } from '../constants';
 import { useAuth } from '../context/AuthContext';
 
 interface HiringWizardProps {
@@ -50,7 +50,7 @@ function talentFromMatch(candidate: MatchCandidate): StudentTalent {
     specialty: p.career || 'Talento NYLA',
     skills: p.skills,
     experienceYears: 0,
-    expectedRate: HOURLY_RATE,
+    expectedRate: STUDENT_HOURLY_RATE,
     availabilityHours: 0,
     rating: p.rating ?? 0,
     university: p.university || 'No especificada',
@@ -74,8 +74,11 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
   const [projectDesc, setProjectDesc] = useState('');
   const [requiredCareer, setRequiredCareer] = useState('Diseño Gráfico y Publicidad');
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
-  const [estimatedHours, setEstimatedHours] = useState(8);
-  const hourlyRate = HOURLY_RATE;
+  const [selectedPackageId, setSelectedPackageId] = useState<'simple' | 'intermedio' | 'elaborado' | 'custom'>('intermedio');
+  const [customHours, setCustomHours] = useState(8);
+  const selectedPackage = PROJECT_PACKAGES.find(p => p.id === selectedPackageId);
+  const estimatedHours = selectedPackage ? selectedPackage.hours : customHours;
+  const hourlyRate = STUDENT_HOURLY_RATE;
   const [entrepreneurName, setEntrepreneurName] = useState(businessName);
   const [signatureText, setSignatureText] = useState('');
   const [isSigned, setIsSigned] = useState(false);
@@ -160,25 +163,21 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
     }
   };
 
-  // Business Model calculations (20% NYLA commission)
-  const calculateBusinessModel = (rate: number, hours: number) => {
-    const rawTotal = rate * hours;
-    const commissionRate = 0.20;
-    const commissionAmount = Number((rawTotal * commissionRate).toFixed(2));
-    const studentNetEarnings = Number((rawTotal - commissionAmount).toFixed(2));
-    const hourlyCommission = Number((rate * commissionRate).toFixed(2));
-    const studentHourlyNet = Number((rate - hourlyCommission).toFixed(2));
-    
+  // Business Model calculations: NYLA earns a flat $10.57 fee per project, the student
+  // earns hours x $5.00/hour. PVP = NYLA_FIXED_FEE + hours x rate.
+  const calculateBusinessModel = (hours: number) => {
+    const rawTotal = calculatePVP(hours);
+    const studentNetEarnings = calculateStudentPayout(hours);
+    const commissionAmount = NYLA_FIXED_FEE;
+
     return {
       rawTotal,
       commissionAmount,
       studentNetEarnings,
-      hourlyCommission,
-      studentHourlyNet
     };
   };
 
-  const modelMath = calculateBusinessModel(hourlyRate, estimatedHours);
+  const modelMath = calculateBusinessModel(estimatedHours);
 
   const handleNextStep = () => {
     if (step < 4) {
@@ -686,119 +685,87 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
             <div className="space-y-6">
               <div className="border-b border-editorial-border pb-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-editorial-accent">Paso 2 de 4</span>
-                <h3 className="text-2xl font-serif font-black text-editorial-text mt-1">Modelo de Negocio: Tarifas y Comisiones</h3>
-                <p className="text-xs text-editorial-muted mt-1">NYLA establece comisiones justas e incrementa la transparencia para startups y estudiantes.</p>
+                <h3 className="text-2xl font-serif font-black text-editorial-text mt-1">Elige un Paquete de Servicio</h3>
+                <p className="text-xs text-editorial-muted mt-1">NYLA cobra una comisión fija de ${NYLA_FIXED_FEE.toFixed(2)} USD por proyecto; el estudiante cobra ${hourlyRate.toFixed(2)} USD por hora.</p>
               </div>
 
-              {/* Slider for hourly rate and estimated hours */}
-              <div className="space-y-6">
-                
-                {/* Hourly Rate display (Fixed) */}
-                <div className="space-y-2 bg-editorial-bg/30 p-5 rounded-2xl border border-editorial-border">
-                  <div className="flex justify-between items-baseline">
-                    <label className="text-[10px] font-bold text-editorial-muted uppercase tracking-wider">Tarifa por Hora del Estudiante</label>
-                    <span className="text-lg font-serif font-black text-editorial-accent bg-editorial-accent/10 px-2.5 py-1 rounded-full text-xs">Tarifa Fija: ${hourlyRate.toFixed(2)} USD / hora</span>
-                  </div>
-                  <div className="text-[11px] text-editorial-muted font-sans leading-relaxed">
-                    De acuerdo con las políticas institucionales de la plataforma NYLA, la tarifa por hora está establecida en un valor fijo de ${hourlyRate.toFixed(2)} USD para garantizar transacciones transparentes y equitativas.
-                  </div>
+              {/* Package selector */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {PROJECT_PACKAGES.map(pkg => {
+                    const isSelected = selectedPackageId === pkg.id;
+                    return (
+                      <button
+                        key={pkg.id}
+                        type="button"
+                        onClick={() => setSelectedPackageId(pkg.id)}
+                        className={`text-left p-4 rounded-2xl border transition-all cursor-pointer space-y-1.5 ${
+                          isSelected
+                            ? 'bg-editorial-text text-editorial-bg border-editorial-text shadow-sm'
+                            : 'bg-editorial-bg/30 border-editorial-border hover:bg-editorial-bg/60'
+                        }`}
+                      >
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>{pkg.hours} {pkg.hours === 1 ? 'hora' : 'horas'}</p>
+                        <p className="font-serif font-black text-base">{pkg.label}</p>
+                        <p className={`text-lg font-serif font-black ${isSelected ? 'text-editorial-bg' : 'text-editorial-text'}`}>${calculatePVP(pkg.hours).toFixed(2)}</p>
+                        <p className={`text-[10px] ${isSelected ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Estudiante recibe ${calculateStudentPayout(pkg.hours).toFixed(2)}</p>
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* Estimated Hours slider: 1 to 40 */}
-                <div className="space-y-2 bg-editorial-bg/30 p-5 rounded-2xl border border-editorial-border">
-                  <div className="flex justify-between items-baseline">
-                    <label className="text-[10px] font-bold text-editorial-muted uppercase tracking-wider">Horas Estimadas del Proyecto</label>
-                    <span className="text-lg font-serif font-black text-editorial-text">{estimatedHours} {estimatedHours === 1 ? 'hora' : 'horas'}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPackageId('custom')}
+                  className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    selectedPackageId === 'custom'
+                      ? 'bg-editorial-text text-editorial-bg border-editorial-text shadow-sm'
+                      : 'bg-editorial-bg/30 border-editorial-border hover:bg-editorial-bg/60'
+                  }`}
+                >
+                  <div>
+                    <p className="font-serif font-black text-sm">Personalizado</p>
+                    <p className={`text-[10px] ${selectedPackageId === 'custom' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Define tus propias horas si tu proyecto no encaja en los paquetes anteriores.</p>
                   </div>
-                  <input 
-                    type="range"
-                    min={1}
-                    max={40}
-                    step={1}
-                    value={estimatedHours}
-                    onChange={(e) => setEstimatedHours(Number(e.target.value))}
-                    className="w-full accent-editorial-text h-1 bg-editorial-light rounded-lg appearance-none cursor-pointer"
-                  />
-                  <div className="flex justify-between text-[9px] text-editorial-muted font-bold font-mono">
-                    <span>Mínimo: 1 h</span>
-                    <span>Recomendado: 2 h</span>
-                    <span>Máximo: 40 h</span>
-                  </div>
-                </div>
-
+                  {selectedPackageId === 'custom' && (
+                    <input
+                      type="number"
+                      min={1}
+                      max={40}
+                      value={customHours}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => setCustomHours(Math.max(1, Math.min(40, Number(e.target.value))))}
+                      className="w-20 bg-white text-editorial-text border border-editorial-border rounded-xl p-2 text-xs text-center font-bold"
+                    />
+                  )}
+                </button>
               </div>
 
-              {/* Business Model breakdown table according to user spec */}
+              {/* Business Model breakdown */}
               <div className="space-y-3 pt-4">
-                <h4 className="text-xs font-bold text-editorial-text uppercase tracking-wider">Cálculo de Desglose de Pago</h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Left: Detailed Interactive Calculations */}
-                  <div className="border border-editorial-border rounded-2xl p-5 space-y-3 bg-white">
-                    <div className="flex justify-between items-center text-xs border-b border-editorial-border pb-2.5">
-                      <span className="text-editorial-muted">Tarifa por hora configurada:</span>
-                      <strong className="text-editorial-text">${hourlyRate.toFixed(2)} USD</strong>
-                    </div>
-                    <div className="flex justify-between items-center text-xs border-b border-editorial-border pb-2.5">
-                      <span className="text-editorial-muted">Comisión NYLA (20%):</span>
-                      <strong className="text-red-700 font-bold">-${modelMath.hourlyCommission.toFixed(2)} USD</strong>
-                    </div>
-                    <div className="flex justify-between items-center text-xs pb-1 font-bold text-editorial-accent">
-                      <span>Recibe el estudiante por hora:</span>
-                      <span>${modelMath.studentHourlyNet.toFixed(2)} USD</span>
-                    </div>
+                <h4 className="text-xs font-bold text-editorial-text uppercase tracking-wider">Desglose de Pago</h4>
 
-                    <div className="border-t border-dashed border-editorial-border pt-3 mt-1 space-y-2.5">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-editorial-muted">Horas totales de trabajo:</span>
-                        <span className="font-semibold">{estimatedHours} horas</span>
-                      </div>
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-editorial-muted">Total del Proyecto:</span>
-                        <span className="font-semibold">${modelMath.rawTotal.toFixed(2)} USD</span>
-                      </div>
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-editorial-muted">Comisión de NYLA total (20%):</span>
-                        <span className="font-semibold text-red-700">-${modelMath.commissionAmount.toFixed(2)} USD</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center text-sm font-serif font-black border-t border-editorial-border pt-2.5 text-editorial-text">
-                        <span>Total a pagar (Emprendedor):</span>
-                        <span>${modelMath.rawTotal.toFixed(2)} USD</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm font-serif font-black text-editorial-accent">
-                        <span>Monto neto para estudiante:</span>
-                        <span>${modelMath.studentNetEarnings.toFixed(2)} USD</span>
-                      </div>
-                    </div>
+                <div className="border border-editorial-border rounded-2xl p-5 space-y-2.5 bg-white text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-editorial-muted">Horas del proyecto:</span>
+                    <span className="font-semibold">{estimatedHours} {estimatedHours === 1 ? 'hora' : 'horas'} × ${hourlyRate.toFixed(2)}/h</span>
                   </div>
-
-                  {/* Right: Commission structure reference directly from user guidelines */}
-                  <div className="bg-editorial-bg p-5 rounded-2xl border border-editorial-border text-xs space-y-3 flex flex-col justify-between">
-                    <div>
-                      <p className="font-bold text-editorial-text uppercase tracking-wider text-[9px] mb-2">Estructura Fija de Comisiones NYLA</p>
-                      
-                      <div className="space-y-2 font-sans text-[11px] leading-relaxed">
-                        <div className="flex justify-between border-b border-editorial-border pb-1.5">
-                          <span className="text-editorial-muted">Tarifa Fija por Hora:</span>
-                          <span className="font-bold text-editorial-text">${hourlyRate.toFixed(2)} USD</span>
-                        </div>
-                        <div className="flex justify-between border-b border-editorial-border pb-1.5">
-                          <span className="text-editorial-muted">Comisión NYLA (20%):</span>
-                          <span className="font-bold text-red-700">-${(hourlyRate * 0.20).toFixed(2)} USD</span>
-                        </div>
-                        <div className="flex justify-between pb-1.5">
-                          <span className="text-editorial-accent font-bold">Monto Neto Estudiante:</span>
-                          <span className="font-black text-editorial-accent">${(hourlyRate * 0.80).toFixed(2)} USD / hora</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-[9px] text-editorial-muted leading-relaxed italic border-t border-editorial-border pt-2.5 mt-2">
-                      *La comisión del 20% se deduce únicamente tras la entrega final aprobada por el emprendedor. Los pagos permanecen en garantía segura (Escrow).
-                    </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-editorial-muted">Pago al estudiante:</span>
+                    <span className="font-semibold text-editorial-accent">${modelMath.studentNetEarnings.toFixed(2)} USD</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-editorial-border pb-2.5">
+                    <span className="text-editorial-muted">Comisión fija NYLA:</span>
+                    <span className="font-semibold">${modelMath.commissionAmount.toFixed(2)} USD</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-serif font-black pt-1 text-editorial-text">
+                    <span>Total a pagar (Emprendedor):</span>
+                    <span>${modelMath.rawTotal.toFixed(2)} USD</span>
                   </div>
                 </div>
-
+                <p className="text-[9px] text-editorial-muted leading-relaxed italic">
+                  *La comisión de NYLA es siempre ${NYLA_FIXED_FEE.toFixed(2)} USD, sin importar las horas del proyecto. Los fondos permanecen en garantía segura (Escrow) hasta la entrega aprobada.
+                </p>
               </div>
             </div>
           )}
@@ -843,10 +810,10 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                 <div className="space-y-2">
                   <p className="font-bold">CLÁUSULA TERCERA: CONDICIONES ECONÓMICAS & COMISIONES</p>
                   <p>
-                    Las partes acuerdan un volumen de <strong>{estimatedHours} horas estimadas</strong> de desarrollo técnico a una tarifa por hora de <strong>${hourlyRate.toFixed(2)} USD</strong>, consolidando un presupuesto total de contrato de <strong>${modelMath.rawTotal.toFixed(2)} USD</strong>. El Emprendedor declara que este monto será depositado en la pasarela segura de NYLA, quedando retenido en garantía (Escrow) hasta la entrega formal.
+                    Las partes acuerdan un volumen de <strong>{estimatedHours} horas estimadas</strong> de desarrollo técnico a una tarifa por hora de <strong>${hourlyRate.toFixed(2)} USD</strong>, más la comisión fija de intermediación de NYLA de <strong>${NYLA_FIXED_FEE.toFixed(2)} USD</strong>, consolidando un presupuesto total de contrato de <strong>${modelMath.rawTotal.toFixed(2)} USD</strong>. El Emprendedor declara que este monto será depositado en la pasarela segura de NYLA, quedando retenido en garantía (Escrow) hasta la entrega formal.
                   </p>
                   <p>
-                    NYLA Corp deducirá una comisión administrativa del 20% (<strong>${modelMath.commissionAmount.toFixed(2)} USD</strong>) directamente del presupuesto retenido una vez se aprueben los entregables. La Estudiante recibirá de forma neta la suma de <strong>${modelMath.studentNetEarnings.toFixed(2)} USD</strong>.
+                    NYLA Corp retendrá su comisión fija de <strong>${modelMath.commissionAmount.toFixed(2)} USD</strong> del presupuesto una vez se aprueben los entregables. La Estudiante recibirá de forma neta la suma de <strong>${modelMath.studentNetEarnings.toFixed(2)} USD</strong>, correspondiente a las horas pactadas.
                   </p>
                 </div>
 
@@ -915,7 +882,7 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                     className="mt-1 w-4 h-4 border-editorial-border text-editorial-text focus:ring-editorial-text"
                   />
                   <label htmlFor="chk-terms" className="text-[10px] text-editorial-muted leading-normal">
-                    Confirmo que he leído y acepto todas las cláusulas, montos de comisiones (20%) y políticas de entrega estipuladas en esta propuesta de colaboración digital.
+                    Confirmo que he leído y acepto todas las cláusulas, la comisión fija de NYLA (${NYLA_FIXED_FEE.toFixed(2)} USD) y políticas de entrega estipuladas en esta propuesta de colaboración digital.
                   </label>
                 </div>
               </div>
@@ -935,7 +902,7 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                 <div>
                   <p className="font-bold">Depósito Protegido por Escrow NYLA</p>
                   <p className="text-green-800 leading-relaxed mt-0.5">
-                    Al confirmar, el contrato queda registrado y asignado a {selectedStudent?.name}. Desde tu Dashboard podrás depositar <strong>${modelMath.rawTotal.toFixed(2)} USD</strong> en garantía con Stripe; los fondos se liberan al estudiante (menos el 20% de comisión) solo cuando apruebes la entrega.
+                    Al confirmar, el contrato queda registrado y asignado a {selectedStudent?.name}. Desde tu Dashboard podrás depositar <strong>${modelMath.rawTotal.toFixed(2)} USD</strong> en garantía con Stripe; el estudiante recibe <strong>${modelMath.studentNetEarnings.toFixed(2)} USD</strong> y NYLA retiene su comisión fija de <strong>${NYLA_FIXED_FEE.toFixed(2)} USD</strong> solo cuando apruebes la entrega.
                   </p>
                 </div>
               </div>
@@ -1018,8 +985,8 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                   <span className="font-bold text-editorial-text">${hourlyRate.toFixed(2)} USD</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-editorial-muted">Comisión NYLA (20%):</span>
-                  <span className="font-bold text-red-700">-${modelMath.hourlyCommission.toFixed(2)} /h</span>
+                  <span className="text-editorial-muted">Comisión fija NYLA:</span>
+                  <span className="font-bold text-editorial-text">${NYLA_FIXED_FEE.toFixed(2)} USD</span>
                 </div>
               </div>
 
