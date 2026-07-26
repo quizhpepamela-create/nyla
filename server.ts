@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import dns from "dns";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { GoogleGenAI } from "@google/genai";
@@ -15,6 +16,12 @@ import adminRouter from "./src/server/routes/admin";
 
 // Load environment variables
 dotenv.config();
+
+// Some cloud hosts (e.g. Render) advertise broken/unreachable IPv6 routes. Node's default
+// DNS resolution can pick that IPv6 address first for outbound HTTPS calls (like the Stripe
+// SDK), causing "connection error, request was retried" failures that don't happen locally.
+// Preferring IPv4 first avoids that.
+dns.setDefaultResultOrder("ipv4first");
 
 // Safety net: an unhandled promise rejection in an async Express 4 route handler
 // (e.g. an unexpected error from Prisma or the Stripe SDK) would otherwise crash the
