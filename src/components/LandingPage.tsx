@@ -65,10 +65,10 @@ interface StudentPortfolio {
 
 const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
   {
-    id: 'elena-v',
-    name: 'Elena Valery',
-    role: 'Diseñadora Gráfica & Publicidad',
-    university: 'Universidad del Azuay (UDA)',
+    id: 'joaquin-b',
+    name: 'Joaquín Balcázar',
+    role: 'Diseño Gráfico & Publicidad',
+    university: 'Universidad Politécnica Salesiana',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCg-sYd74mPtldBVLjpMlInRZpS-FvyONN-uEnSbU5vVhIMzgq1_nliHBmaDbOMJD6R0Vtrp-71v-t-N0l2Fi3itvfMNYHSX8XBlLq41trEqzFB1up1u-kbIYaqYU2O0R1iiffM2KBBBkS1q8nIZwwdlFTFReP6Uj4IxFhJa1GZB6pM4j75ZCuovgwg7vTUP_aJAqltVKtJArj5AayWm1kmDLUGpqFUOP2ekK9iac2W2wn32zwj-SFSIP6O_CM7qWrOKFPY2SIBlZn',
     rating: 4.9,
     reviewsCount: 42,
@@ -131,10 +131,10 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     ]
   },
   {
-    id: 'nicolas-r',
-    name: 'Mateo Ortiz',
-    role: 'Creación de Contenido en TikTok & Facebook',
-    university: 'Universidad de Cuenca',
+    id: 'camila-r',
+    name: 'Camila Ríos',
+    role: 'Marketing y Creación de Contenido Digital',
+    university: 'Universidad Politécnica Salesiana',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA08kpLxAzrQpj-rebgESm964d7GAAlPgI04OfTPv_HWHvCAOnJgwWnI3BZnYz6UGMuNzO1-KZyZjb9SIb68W7BSGT-XiNqHZ9LQOrFNsSOp8HQjetkILTGWZaD2s3HzkMQL0XPQ9k2Svj2BG0B5grs3joKAXOkAKw1ahZ48rnpOjXPBhVb6YkqcUf0_mKMhuwC5eefKzq_OeQXepgVxV1NRt-ZU7rAwYaXBJPumV0GGyYoK-Dqu1qWGWSzq7YittTqUxqJEdzJwaw_',
     rating: 4.8,
     reviewsCount: 31,
@@ -163,10 +163,10 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     ]
   },
   {
-    id: 'sofia-h',
-    name: 'Sofía Cárdenas',
-    role: 'Diseño de Modas & Estampados',
-    university: 'Universidad del Azuay (UDA)',
+    id: 'daniel-g',
+    name: 'Daniel Guevara',
+    role: 'Diseño Gráfico & Estampados',
+    university: 'Universidad Politécnica Salesiana',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA3IAbmw7mPDpl0mdfym-FTgFUC-ZZo-wq2i38wBAkO1UWbfLZglso3CXrfrAsKp5iozkNaziyaOE_pTXXuQv0CmuM4eVrO1x1qqAEfOQi6VUKJUq9rbxY9UXFdqRTr1i_JaDGUjO-wi6bYZhl05ME4NWgV85JItvwi7AZy6W44a9J5P8OCxAWqsKozS2rZBirTSbWsZFeRdx1jkZB9UohsIORsH1OtWYS4QoLHpfme8TvpUdxTUWhJjaivDg-yOrI0nOZCFBjdTliO',
     rating: 5.0,
     reviewsCount: 25,
