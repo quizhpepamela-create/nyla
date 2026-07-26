@@ -75,13 +75,39 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
     return () => clearInterval(interval);
   }, []);
 
+  const [deliverImages, setDeliverImages] = useState<Record<string, string[]>>({});
+
+  const handleAddDeliverImage = async (projectId: string, file: File) => {
+    if ((deliverImages[projectId]?.length ?? 0) >= 5) {
+      setActionError('Máximo 5 imágenes por entrega.');
+      return;
+    }
+    if (file.size > 1.5 * 1024 * 1024) {
+      setActionError('La imagen es muy pesada (máximo 1.5MB).');
+      return;
+    }
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    setDeliverImages(prev => ({ ...prev, [projectId]: [...(prev[projectId] || []), dataUrl] }));
+  };
+
   const handleDeliver = async (projectId: string) => {
     setActionError(null);
     try {
-      const res = await fetch(`/api/projects/${projectId}/deliver`, { method: 'POST', credentials: 'include' });
+      const res = await fetch(`/api/projects/${projectId}/deliver`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ deliverables: deliverImages[projectId] || [] }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'No se pudo marcar la entrega.');
       setProjects(prev => prev.map(p => p.id === projectId ? data.project : p));
+      setDeliverImages(prev => { const next = { ...prev }; delete next[projectId]; return next; });
     } catch (err: any) {
       setActionError(err.message);
     }
@@ -490,6 +516,38 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
                     </div>
                   </div>
                 </div>
+
+                {project.deliverables && project.deliverables.length > 0 && (
+                  <div className="flex gap-2 flex-wrap pt-1">
+                    {project.deliverables.map((img, idx) => (
+                      <img key={idx} src={img} alt={`Entregable ${idx + 1}`} className="w-14 h-14 rounded-lg object-cover border border-editorial-border" />
+                    ))}
+                  </div>
+                )}
+
+                {isStudent && project.progress < 100 && (
+                  <div className="space-y-2 pt-1">
+                    <div className="flex gap-2 flex-wrap">
+                      {(deliverImages[project.id] || []).map((img, idx) => (
+                        <img key={idx} src={img} alt={`Adjunto ${idx + 1}`} className="w-12 h-12 rounded-lg object-cover border border-editorial-border" />
+                      ))}
+                      <label className="w-12 h-12 rounded-lg border border-dashed border-editorial-border flex items-center justify-center text-editorial-muted cursor-pointer hover:bg-editorial-light text-lg">
+                        +
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            e.target.value = '';
+                            if (file) handleAddDeliverImage(project.id, file);
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <p className="text-[9px] text-editorial-muted">Adjunta capturas o fotos de lo que entregaste (opcional).</p>
+                  </div>
+                )}
 
                 <div className="flex gap-2.5 pt-3 border-t border-editorial-border/40">
                   {isStudent ? (

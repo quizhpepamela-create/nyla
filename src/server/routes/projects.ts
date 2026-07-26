@@ -210,6 +210,10 @@ router.post("/:id/assign", requireAuth, async (req, res) => {
   res.json({ project: updatedProject });
 });
 
+const deliverSchema = z.object({
+  deliverables: z.array(z.string()).max(10).optional(),
+});
+
 router.post("/:id/deliver", requireAuth, async (req, res) => {
   const project = await prisma.project.findUnique({ where: { id: req.params.id } });
   if (!project) {
@@ -219,9 +223,17 @@ router.post("/:id/deliver", requireAuth, async (req, res) => {
     return res.status(403).json({ error: "No tienes acceso a este proyecto." });
   }
 
+  const parsed = deliverSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Datos inválidos." });
+  }
+
   const updated = await prisma.project.update({
     where: { id: project.id },
-    data: { progress: 100 },
+    data: {
+      progress: 100,
+      ...(parsed.data.deliverables ? { deliverables: parsed.data.deliverables } : {}),
+    },
   });
   res.json({ project: updated });
 });
