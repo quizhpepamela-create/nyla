@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ViewState } from '../types';
-import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE } from '../constants';
+import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout } from '../constants';
 import { useAuth } from '../context/AuthContext';
 
 // @ts-ignore
@@ -416,8 +416,9 @@ export default function LandingPage({ setView }: LandingPageProps) {
             </span>
             <div className="hidden md:flex gap-8 text-[11px] uppercase tracking-[0.2em] font-bold">
               <a href="#hero" className="text-editorial-text border-b border-editorial-text pb-1 hover:opacity-60 transition-opacity">Inicio</a>
+              <a href="#planes" className="text-editorial-text/70 hover:opacity-60 transition-opacity font-bold text-editorial-accent">Planes</a>
               <a href="#portafolios" className="text-editorial-text/70 hover:opacity-60 transition-opacity">Portafolios y Trabajos</a>
-              <a href="#features" className="text-editorial-text/70 hover:opacity-60 transition-opacity font-bold text-editorial-accent">Cómo funciona</a>
+              <a href="#features" className="text-editorial-text/70 hover:opacity-60 transition-opacity">Cómo funciona</a>
               <a href="#payments-showcase" className="text-editorial-text/70 hover:opacity-60 transition-opacity">Métodos de Pago</a>
               <a href="#whatsapp-section" className="text-editorial-text/70 hover:opacity-60 transition-opacity">WhatsApp Business</a>
             </div>
@@ -503,8 +504,8 @@ export default function LandingPage({ setView }: LandingPageProps) {
                   <p className="text-[9px] uppercase tracking-wider text-editorial-muted">Comisión Fija NYLA</p>
                 </div>
                 <div>
-                  <h4 className="text-2xl font-serif font-bold text-editorial-text">${STUDENT_HOURLY_RATE.toFixed(2)}</h4>
-                  <p className="text-[9px] uppercase tracking-wider text-editorial-muted">Tarifa Fija / Hora</p>
+                  <h4 className="text-2xl font-serif font-bold text-editorial-text">${calculatePVP(PROJECT_PACKAGES[0].hours).toFixed(2)}</h4>
+                  <p className="text-[9px] uppercase tracking-wider text-editorial-muted">Plan Mensual Desde</p>
                 </div>
                 <div>
                   <h4 className="text-2xl font-serif font-bold text-editorial-text">100%</h4>
@@ -564,6 +565,63 @@ export default function LandingPage({ setView }: LandingPageProps) {
               </div>
             </motion.div>
 
+          </div>
+        </section>
+
+        {/* Planes Mensuales — public pricing, visible to everyone without logging in */}
+        <section id="planes" className="px-6 md:px-12 py-16 border-t border-editorial-border">
+          <div className="max-w-7xl mx-auto space-y-10">
+            <div className="space-y-3 max-w-2xl">
+              <span className="inline-block border border-editorial-border px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.15em] uppercase text-editorial-accent bg-white">
+                PLANES MENSUALES
+              </span>
+              <h2 className="text-3xl md:text-4xl font-serif font-black text-editorial-text leading-tight tracking-tight">
+                Un plan para cada tamaño de negocio
+              </h2>
+              <p className="text-editorial-muted text-sm leading-relaxed">
+                Cada plan define cuántas horas al mes dedica el estudiante y qué contenido incluye. La comisión de NYLA es siempre ${NYLA_FIXED_FEE.toFixed(2)} USD; el resto es el pago fijo del estudiante, a ${STUDENT_HOURLY_RATE.toFixed(2)} USD/hora.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {PROJECT_PACKAGES.map(pkg => (
+                <div
+                  key={pkg.id}
+                  className={`rounded-[28px] p-7 space-y-4 border ${
+                    pkg.id === 'intermedio'
+                      ? 'bg-editorial-text text-editorial-bg border-editorial-text shadow-md scale-[1.02]'
+                      : 'bg-white border-editorial-border'
+                  }`}
+                >
+                  <div>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider ${pkg.id === 'intermedio' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>{pkg.hours} horas / mes</p>
+                    <h3 className="font-serif font-black text-xl">{pkg.label}</h3>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-serif font-black">${calculatePVP(pkg.hours).toFixed(2)}<span className="text-xs font-sans font-normal"> /mes</span></p>
+                    <p className={`text-[11px] ${pkg.id === 'intermedio' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Estudiante recibe ${calculateStudentPayout(pkg.hours).toFixed(2)}/mes</p>
+                  </div>
+                  <ul className="space-y-2 text-xs">
+                    {pkg.includes.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${pkg.id === 'intermedio' ? 'text-editorial-bg' : 'text-editorial-text'}`} />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => setView('register')}
+                    className={`w-full py-3 rounded-full text-[11px] uppercase tracking-[0.15em] font-bold cursor-pointer border-none transition-all ${
+                      pkg.id === 'intermedio'
+                        ? 'bg-editorial-bg text-editorial-text hover:opacity-90'
+                        : 'bg-editorial-text text-editorial-bg hover:opacity-90'
+                    }`}
+                  >
+                    Elegir {pkg.label}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
