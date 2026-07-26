@@ -33,6 +33,12 @@ import grafitoWearLogo from '../assets/images/grafito_wear_logo_1784684755052.jp
 import grafitoCollageTshirt from '../assets/images/grafito_collage_tshirt_1784724447673.jpg';
 // @ts-ignore
 import spidermanTshirt from '../assets/images/spiderman_tshirt_1784684779640.jpg';
+// @ts-ignore
+import beautyPointImg1 from '../assets/images/beautypoint_caso_exito_1.png';
+// @ts-ignore
+import beautyPointImg2 from '../assets/images/beautypoint_caso_exito_2.png';
+// @ts-ignore
+import beautyPointImg3 from '../assets/images/beautypoint_caso_exito_3.png';
 
 interface StudentWork {
   title: string;
@@ -69,20 +75,20 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     name: 'Joaquín Balcázar',
     role: 'Diseño Gráfico & Publicidad',
     university: 'Universidad Politécnica Salesiana',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCg-sYd74mPtldBVLjpMlInRZpS-FvyONN-uEnSbU5vVhIMzgq1_nliHBmaDbOMJD6R0Vtrp-71v-t-N0l2Fi3itvfMNYHSX8XBlLq41trEqzFB1up1u-kbIYaqYU2O0R1iiffM2KBBBkS1q8nIZwwdlFTFReP6Uj4IxFhJa1GZB6pM4j75ZCuovgwg7vTUP_aJAqltVKtJArj5AayWm1kmDLUGpqFUOP2ekK9iac2W2wn32zwj-SFSIP6O_CM7qWrOKFPY2SIBlZn',
+    avatar: '',
     rating: 4.9,
-    reviewsCount: 42,
+    reviewsCount: 4,
     rate: STUDENT_HOURLY_RATE,
     category: 'web',
     skills: ['Figma', 'Canva', 'Instagram', 'Branding', 'Ilustración'],
     bio: 'Me especializo en diseñar feeds de Instagram atractivos, logotipos vectoriales y materiales para marcas de moda urbana e independientes.',
     projects: [
       {
-        title: 'Diseño de Feed de Instagram - Grafito Wear',
-        description: 'Creación de 12 plantillas de post y 6 portadas de historias destacadas para la marca de ropa urbana Grafito Wear en Cuenca.',
-        badge: 'Hito Completado • Garantía Escrow Liberada',
-        budget: 48,
-        hours: 8,
+        title: 'Rediseño de Identidad Visual - Grafito Wear',
+        description: 'Nueva línea gráfica para las publicaciones de Instagram de Grafito Wear, con plan Intermedio (20h/mes): 4 videos, 2 historias y 2 publicaciones.',
+        badge: 'Plan Intermedio • En Progreso',
+        budget: 100,
+        hours: 20,
         tech: ['Figma', 'Canva', 'Ilustración'],
         deliverableType: 'interface',
         visualTitle: 'Grafito Wear - Colección Streetwear',
@@ -93,40 +99,6 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
           '📈 Aumento del 25% en clics al enlace de WhatsApp de compras'
         ],
         previewUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDH29C9NmwVGSKJdKGGgxwQ5jHR2ALCduDsdEhRQHUrUniMYElbjyIeQ6AscCL4LOfNaC4sDr6QA3Kn0NyENCyFbzhQgknh9hKPG3sWVZeEXMLd49lYPIWadBPRWEm6OW--UqXKYaanQatP_HGnHFdHlb-NQjqZ5NtJ1xlTV0Gdjin1GLoluCoktyLEo4z01_mOh7YjrQqgm7FrfNYFL1kVscZO2_SPduuqei5uVM369dHek52rG3-5sCcq2VCLqL7r0AjnRbjomS_Y'
-      },
-      {
-        title: 'Diseño de Logotipo e Identidad',
-        description: 'Diseño del logotipo vectorial y paleta de colores para una cafetería de especialidad local.',
-        badge: 'Proyecto Entregado • 100% Calificación',
-        budget: 35,
-        hours: 7,
-        tech: ['Figma', 'Illustrator'],
-        deliverableType: 'marketing',
-        visualTitle: 'Café Origin - Logotipo Vectorial',
-        visualSubtitle: 'Isologotipo para Aplicación en Empaques',
-        visualElements: [
-          '☕ Logotipo limpio, minimalista y de alta resolución',
-          '🎨 Paleta de colores tierra cálidos para coherencia visual',
-          '📦 Archivos de marca listos para impresión de vasos y bolsas'
-        ],
-        previewUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9b9KDMlx5KWnd1dwvbDtUCimPYcigJTAfvLrpiU4mJrwhPMgLR2YOhHY8RbEWOqzgZce4CoKz-azRii96L7cYWxBajz9BZtFS3VS-uvgCo2StSPSujbSJG_bST0huuqs_ezZTmhRuNiA8iib1g-7-I8faNiShuIRQTFQRf5P4QLOEXwA29pRupbN5LS0Lk2SHxt7cNc8sRMqP6SKuRHa48utMyP3ZFHVaotqfrupPSWBhVXw80XKIfALPvrzNx1L-FwrmHcBHVSZk'
-      },
-      {
-        title: 'Diseño de Feed de Instagram - Adry Pastelería',
-        description: 'Diseño y maquetación de 3 publicaciones emblemáticas de alta estética en Instagram, destacando tortas personalizadas exclusivas y cajas gourmet de regalos.',
-        badge: 'Hito Completado • 3 Posts de Feed Validados',
-        budget: 60,
-        hours: 10,
-        tech: ['Canva', 'Fotografía', 'Copywriting', 'Instagram'],
-        deliverableType: 'marketing',
-        visualTitle: 'Adry Pastelería - Post de Instagram',
-        visualSubtitle: 'Estrategia Visual de Repostería Creativa',
-        visualElements: [
-          '🎂 Torta Cumpleaños "40" con silueta de fisicoculturista negra sobre crema blanca',
-          '🎁 Caja Regalo "Tablita Gourmet" con vino, quesos, fresas y mini torta con dibujo de monigotes celebrando los 40 años',
-          '👑 Torta "Princess Cake" decorada con perlas comestibles plateadas y una corona/tiara real plateada en la cima'
-        ],
-        previewUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9b9KDMlx5KWnd1dwvbDtUCimPYcigJTAfvLrpiU4mJrwhPMgLR2YOhHY8RbEWOqzgZce4CoKz-azRii96L7cYWxBajz9BZtFS3VS-uvgCo2StSPSujbSJG_bST0huuqs_ezZTmhRuNiA8iib1g-7-I8faNiShuIRQTFQRf5P4QLOEXwA29pRupbN5LS0Lk2SHxt7cNc8sRMqP6SKuRHa48utMyP3ZFHVaotqfrupPSWBhVXw80XKIfALPvrzNx1L-FwrmHcBHVSZk'
       }
     ]
   },
@@ -135,28 +107,28 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     name: 'Camila Ríos',
     role: 'Marketing y Creación de Contenido Digital',
     university: 'Universidad Politécnica Salesiana',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA08kpLxAzrQpj-rebgESm964d7GAAlPgI04OfTPv_HWHvCAOnJgwWnI3BZnYz6UGMuNzO1-KZyZjb9SIb68W7BSGT-XiNqHZ9LQOrFNsSOp8HQjetkILTGWZaD2s3HzkMQL0XPQ9k2Svj2BG0B5grs3joKAXOkAKw1ahZ48rnpOjXPBhVb6YkqcUf0_mKMhuwC5eefKzq_OeQXepgVxV1NRt-ZU7rAwYaXBJPumV0GGyYoK-Dqu1qWGWSzq7YittTqUxqJEdzJwaw_',
+    avatar: '',
     rating: 4.8,
-    reviewsCount: 31,
+    reviewsCount: 3,
     rate: STUDENT_HOURLY_RATE,
     category: 'data',
     skills: ['TikTok', 'Facebook Ads', 'CapCut', 'Edición de Video', 'Storytelling'],
-    bio: 'Nos contactamos con Grafito mediante Facebook porque el dueño necesitaba publicidad en TikTok. Él había dejado su cuenta inactiva desde el 2025 pero quería volver a las redes sociales, y ya tenía algo de seguidores. Así que nosotros le hicimos la publicidad para TikTok y también para Facebook con excelentes resultados.',
+    bio: 'Gestiono campañas de redes sociales y contenido en video para pequeños negocios locales, con enfoque en crecimiento real de seguidores y ventas.',
     projects: [
       {
-        title: 'Campaña de Lanzamiento y Reactivación de Redes - Grafito',
-        description: 'Producción de videos dinámicos y anuncios optimizados para TikTok y Facebook de Grafito Wear, reactivando con éxito su cuenta inactiva desde el 2025 y atrayendo nuevos clientes.',
-        badge: 'Completado • Validado por Tutor',
-        budget: 35,
-        hours: 7,
+        title: 'Plan Básico de Contenido - Marca Local',
+        description: 'Plan Básico (10h/mes): 2 videos y 2 publicaciones para redes sociales, con calendario de publicación y anuncios en Facebook.',
+        badge: 'Plan Básico • Completado',
+        budget: 50,
+        hours: 10,
         tech: ['TikTok', 'Facebook Ads', 'CapCut'],
         deliverableType: 'chart',
-        visualTitle: 'Grafito - Campaña TikTok y Facebook',
-        visualSubtitle: 'Contenido Orgánico y Anuncios de Reactivación',
+        visualTitle: 'Campaña de Reactivación en Redes',
+        visualSubtitle: 'Contenido Orgánico y Anuncios',
         visualElements: [
           '⚡ Videos dinámicos grabados y editados en CapCut con ritmos virales',
-          '📱 Campaña de anuncios en Facebook para captar seguidores con el enlace de compra',
-          '📈 Reactivación exitosa de la comunidad de Grafito que estuvo inactiva desde 2025'
+          '📱 Campaña de anuncios en Facebook para captar seguidores',
+          '📈 Crecimiento real de la comunidad en redes'
         ],
         previewUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB_ApBabvPrf4O56mWkO3yEeYc5IvpHYKOHF9ZcVmIVGmcBPVAUvz9eKE7CQ8Zm63sfaVx-GQbZaQhZp9_2t6xATYKeM8C7rqB07nLE_BiX5fU_FU95GG3johXwjJP2Fftb7iNlZazhJTaY78HKuQyFh5QrlVS-NRJwXyM5TXgk6htcBWCkxzCuPxCy-aksKRCAY0IFPyHAgIlT4j12oMQKSFiOKDke3Z2Zd56XhrE3T_hUJ6vUJj_aDkFG_slJbNd2fDg8ofz2V6mY'
       }
@@ -167,28 +139,28 @@ const STUDENT_PORTFOLIOS: StudentPortfolio[] = [
     name: 'Daniel Guevara',
     role: 'Diseño Gráfico & Estampados',
     university: 'Universidad Politécnica Salesiana',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA3IAbmw7mPDpl0mdfym-FTgFUC-ZZo-wq2i38wBAkO1UWbfLZglso3CXrfrAsKp5iozkNaziyaOE_pTXXuQv0CmuM4eVrO1x1qqAEfOQi6VUKJUq9rbxY9UXFdqRTr1i_JaDGUjO-wi6bYZhl05ME4NWgV85JItvwi7AZy6W44a9J5P8OCxAWqsKozS2rZBirTSbWsZFeRdx1jkZB9UohsIORsH1OtWYS4QoLHpfme8TvpUdxTUWhJjaivDg-yOrI0nOZCFBjdTliO',
+    avatar: '',
     rating: 5.0,
-    reviewsCount: 25,
+    reviewsCount: 2,
     rate: STUDENT_HOURLY_RATE,
     category: 'uiux',
     skills: ['Illustrator', 'Estampados', 'Figma', 'Moda Urbana'],
-    bio: 'Me dedico a crear patrones de estampado textiles e ilustraciones vectoriales con estilo juvenil para serigrafía de camisetas.',
+    bio: 'Diseño catálogos visuales y piezas gráficas para negocios de tecnología y moda, con enfoque en identidad de marca coherente.',
     projects: [
       {
-        title: 'Diseño de Estampado de T-Shirt - Collage Urbano',
-        description: 'Ilustración vectorial completa estilo "sticker-bomb" adaptada para camisetas de la nueva colección de ropa urbana nacional.',
-        badge: 'Entregado a Producción • Calificación Perfecta',
-        budget: 80,
+        title: 'Plan Básico de Catálogo Visual - Planetcompu',
+        description: 'Plan Básico (10h/mes): diseño de piezas gráficas para mostrar los productos tecnológicos de Planetcompu en redes sociales.',
+        badge: 'Plan Básico • En Progreso',
+        budget: 50,
         hours: 10,
-        tech: ['Illustrator', 'Estampados', 'Figma'],
+        tech: ['Illustrator', 'Figma', 'Canva'],
         deliverableType: 'interface',
-        visualTitle: 'Grafito - Estampado Collage',
-        visualSubtitle: 'Arte Vectorial para Impresión Textil',
+        visualTitle: 'Planetcompu - Catálogo Visual',
+        visualSubtitle: 'Piezas Gráficas para Redes Sociales',
         visualElements: [
-          '🎨 Gráficos 100% vectoriales escalables listos para el taller',
-          '👕 Separación técnica de colores óptima para serigrafía en Cuenca',
-          '🚀 Camiseta de algodón más vendida en los primeros 15 días'
+          '🎨 Gráficos vectoriales listos para publicar',
+          '💻 Fichas de producto con estilo tecnológico coherente',
+          '🚀 Contenido optimizado para Instagram y Facebook'
         ],
         previewUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBQAbmkdHSvrBaQDXvy6zDoKjUDM01r5GXvE2V7O6eGqBGo7F2qLq9cIaDzVmYChfpBt8cFnH7p0mX2yO-hyCTwFu0bsZID76kG18UsZQoBB1xb-AprWBOsNiThFJk3slwzy0ssMapzAjcbZKN7E7cXe-doUk3klqOAq2kaSR_fTOfJiAn-Y4d9LkwtozrOOpn_jCEORkAYCEguyANCghpcIZ1qe417SsJlX2_VK5aoMkOY0QjKGYz3QmZj8Crqb6rTpHa98KXPa12i'
       }
@@ -242,8 +214,8 @@ export default function LandingPage({ setView }: LandingPageProps) {
   const [whatsAppTyping, setWhatsAppTyping] = useState(false);
 
   // YouTube tutorial video states
-  const [youtubeLinkInput, setYoutubeLinkInput] = useState('https://youtu.be/lMESXRaNerk?si=h9uA0x_RW1RRNtwj');
-  const [tutorialEmbedUrl, setTutorialEmbedUrl] = useState('https://www.youtube.com/embed/lMESXRaNerk');
+  const [youtubeLinkInput, setYoutubeLinkInput] = useState('https://youtu.be/pYhQHEXph6U');
+  const [tutorialEmbedUrl, setTutorialEmbedUrl] = useState('https://www.youtube.com/embed/pYhQHEXph6U');
 
   const updateEmbedUrl = (url: string) => {
     setYoutubeLinkInput(url);
@@ -795,8 +767,12 @@ export default function LandingPage({ setView }: LandingPageProps) {
                     <div className="space-y-4">
                       {/* Student Header */}
                       <div className="flex gap-4 items-start">
-                        <div className="w-14 h-14 rounded-full overflow-hidden border border-editorial-border bg-editorial-bg shrink-0">
-                          <img className="w-full h-full object-cover" referrerPolicy="no-referrer" src={student.avatar} alt={student.name} />
+                        <div className="w-14 h-14 rounded-full overflow-hidden border border-editorial-border bg-editorial-bg shrink-0 flex items-center justify-center">
+                          {student.avatar ? (
+                            <img className="w-full h-full object-cover" referrerPolicy="no-referrer" src={student.avatar} alt={student.name} />
+                          ) : (
+                            <span className="font-serif font-black text-lg text-editorial-text">{student.name.charAt(0)}</span>
+                          )}
                         </div>
                         <div className="space-y-1">
                           <h3 className="font-serif font-black text-md text-editorial-text">{student.name}</h3>
@@ -1619,7 +1595,7 @@ export default function LandingPage({ setView }: LandingPageProps) {
         {/* Caso de Éxito Destacado Section */}
         <section id="caso-exito" className="px-6 md:px-12 py-20 bg-white border-t border-editorial-border">
           <div className="max-w-5xl mx-auto space-y-12">
-            
+
             {/* Header */}
             <div className="text-center space-y-4 max-w-2xl mx-auto">
               <span className="inline-block border border-editorial-border px-3.5 py-1 rounded-full text-[9px] font-bold tracking-[0.15em] uppercase text-editorial-text/70 bg-editorial-bg">
@@ -1635,23 +1611,23 @@ export default function LandingPage({ setView }: LandingPageProps) {
 
             {/* Interactive Success Card */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-editorial-light/40 border border-editorial-border rounded-[32px] p-6 md:p-10 text-left">
-              
-              {/* Info Column (lg:col-span-7) - Adry Pasteleria */}
+
+              {/* Info Column (lg:col-span-7) - Beauty Point */}
               <div className="lg:col-span-7 space-y-6">
                 <div className="inline-flex items-center gap-2 bg-[#E1F5FE] border border-sky-200 text-sky-900 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                   <span className="w-2 h-2 rounded-full bg-[#E1306C] animate-pulse"></span>
-                  Caso Real en Instagram: @adrypasteleriaypanaderia
+                  Caso Real en Instagram: @beauty.point.ec
                 </div>
 
                 <div className="space-y-3">
                   <h3 className="text-2xl md:text-3xl font-serif font-black text-editorial-text leading-tight">
-                    La Historia de Adry Pastelería
+                    La Historia de Beauty Point
                   </h3>
                   <p className="text-xs md:text-sm text-editorial-muted leading-relaxed">
-                    <strong className="text-editorial-text font-black">Adry Pastelería</strong> es una distinguida marca artesanal de Cuenca, Ecuador, dedicada a la creación de repostería creativa de alta calidad. Creado por <strong className="text-editorial-text font-bold">@adrypasteleriaypanaderia</strong>, se especializa en tortas personalizadas exclusivas (Tarta Vasca, pasteles temáticos para cumpleaños), desayunos sorpresa y las cotizadas "tablitas gourmet" de embutidos y quesos.
+                    <strong className="text-editorial-text font-black">Beauty Point</strong> es una tienda de belleza en Ecuador especializada en productos virales de maquillaje y cuidado personal, con envíos gratis a todo el país. Creado por <strong className="text-editorial-text font-bold">@beauty.point.ec</strong>.
                   </p>
                   <p className="text-xs md:text-sm text-editorial-muted leading-relaxed">
-                    Con el objetivo de sofisticar su presencia digital, organizar visualmente su catálogo y captar más pedidos locales a través de WhatsApp, realizaron una colaboración de diseño y branding con estudiantes de NYLA. Se diseñó y publicó una serie de <strong>3 publicaciones clave de altísima estética</strong> en Instagram que redefinieron el perfil, mostrando con gran elegancia sus productos estrella y elevando la confianza del cliente.
+                    Con el objetivo de mantener su contenido activo y atractivo, contrataron a una estudiante de NYLA bajo el <strong>Plan Intermedio</strong> (20 horas al mes): producción de videos de producto, historias y publicaciones para redes sociales.
                   </p>
                 </div>
 
@@ -1659,22 +1635,22 @@ export default function LandingPage({ setView }: LandingPageProps) {
                 <div className="grid grid-cols-3 gap-4 border-y border-editorial-border/60 py-4">
                   <div>
                     <span className="text-[9px] uppercase font-bold text-editorial-muted block">Publicaciones</span>
-                    <span className="font-serif font-black text-xl md:text-2xl text-editorial-accent">451</span>
+                    <span className="font-serif font-black text-xl md:text-2xl text-editorial-accent">9</span>
                   </div>
                   <div>
                     <span className="text-[9px] uppercase font-bold text-editorial-muted block">Seguidores</span>
-                    <span className="font-serif font-black text-xl md:text-2xl text-editorial-text">2,033</span>
+                    <span className="font-serif font-black text-xl md:text-2xl text-editorial-text">239</span>
                   </div>
                   <div>
-                    <span className="text-[9px] uppercase font-bold text-editorial-muted block">Post Entregados</span>
-                    <span className="font-serif font-black text-xl md:text-2xl text-green-700">3 Publicaciones</span>
+                    <span className="text-[9px] uppercase font-bold text-editorial-muted block">Plan Contratado</span>
+                    <span className="font-serif font-black text-xl md:text-2xl text-green-700">Intermedio</span>
                   </div>
                 </div>
 
                 {/* Direct CTA */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <a
-                    href="https://www.instagram.com/adrypasteleriaypanaderia/"
+                    href="https://www.instagram.com/beauty.point.ec/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gradient-to-r from-[#FCAF45] via-[#E1306C] to-[#C13584] text-white px-6 py-3.5 rounded-xl text-[10px] uppercase tracking-widest font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 cursor-pointer text-center no-underline border-none"
@@ -1691,319 +1667,31 @@ export default function LandingPage({ setView }: LandingPageProps) {
                 </div>
               </div>
 
-              {/* Instagram Phone Mockup Column (lg:col-span-5) */}
+              {/* Phone Mockup Column (lg:col-span-5) — real content screenshots */}
               <div className="lg:col-span-5 flex justify-center w-full">
-                <div className="relative w-full max-w-[325px] bg-black rounded-[48px] p-4 shadow-2xl border-[6px] border-neutral-800">
-                  {/* Camera Notch */}
-                  <div className="absolute top-6 left-1/2 -translate-x-1/2 w-24 h-4 bg-black rounded-full z-20"></div>
-                  
-                  {/* Phone Screen Container */}
-                  <div className="relative aspect-[9/18.5] w-full rounded-[36px] overflow-hidden bg-white flex flex-col justify-between text-neutral-900 p-3 font-sans border border-neutral-200">
-                    
-                    {/* Top Bar Status */}
-                    <div className="flex justify-between items-center text-[10px] opacity-90 pt-1 px-2 font-semibold text-neutral-900">
-                      <span>18:45</span>
-                      <div className="flex items-center gap-1.5">
-                        <span>📶</span>
-                        <span>🔋</span>
-                      </div>
-                    </div>
-
-                    {/* Instagram Header Bar */}
-                    <div className="flex justify-between items-center px-2 py-1.5 border-b border-neutral-100 bg-white">
-                      <button className="text-neutral-800 hover:text-black transition-colors bg-transparent border-none p-0 cursor-pointer">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
-                      <span className="font-bold text-xs tracking-wide text-neutral-800">adrypasteleriaypanaderia</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-semibold text-neutral-500">•••</span>
-                      </div>
-                    </div>
-
-                    {/* Instagram User Profile simulation */}
-                    <div className="flex-1 flex flex-col justify-start space-y-3.5 pt-3 overflow-y-auto no-scrollbar bg-white">
-                      
-                      {/* Avatar & Stats row */}
-                      <div className="flex items-center gap-4 px-1.5">
-                        {/* Avatar */}
-                        <div className="relative shrink-0">
-                          {/* Gradient ring */}
-                          <div className="w-[68px] h-[68px] rounded-full p-[2px] bg-gradient-to-tr from-[#FCAF45] via-[#E1306C] to-[#C13584]">
-                            <div className="w-full h-full rounded-full overflow-hidden bg-[#78A3A3] flex items-center justify-center border border-white text-white p-1 text-center font-serif shadow-sm">
-                              <div className="flex flex-col items-center leading-none">
-                                <span className="text-[10px] font-bold tracking-tight">Adry</span>
-                                <span className="text-[6.5px] uppercase tracking-wider font-sans mt-0.5 opacity-90">Pasteleria</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Stats counts inline */}
-                        <div className="flex-1 flex justify-around text-center">
-                          <div>
-                            <div className="font-extrabold text-[12px] text-neutral-900">451</div>
-                            <div className="text-[7.5px] text-neutral-500 uppercase tracking-tight font-medium">Publics.</div>
-                          </div>
-                          <div>
-                            <div className="font-extrabold text-[12px] text-neutral-900">2033</div>
-                            <div className="text-[7.5px] text-neutral-500 uppercase tracking-tight font-medium">Seguidores</div>
-                          </div>
-                          <div>
-                            <div className="font-extrabold text-[12px] text-neutral-900">3507</div>
-                            <div className="text-[7.5px] text-neutral-500 uppercase tracking-tight font-medium">Seguidos</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Profile Info & Bio */}
-                      <div className="text-[9.5px] text-neutral-800 px-2 space-y-0.5 font-sans">
-                        <p className="font-extrabold text-[10.5px] text-neutral-900">Adry Pasteleria</p>
-                        <p className="text-neutral-500 text-[9px] italic">Creado por @adrypasteleriaypanaderia realizamos</p>
-                        <p className="text-neutral-800 font-bold">🎂 TORTAS / TARTA VASCA / DESAYUNOS / TABLITAS</p>
-                        <p className="text-neutral-600 flex items-center gap-1">📍 Tienda online, Pedidos con 24 a 48 horas...</p>
-                        <p className="text-[#00376B] font-bold flex items-center gap-1 cursor-pointer">
-                          🔗 wa.link/go9uzh
-                        </p>
-                      </div>
-
-                      {/* Buttons (Siguiendo, Mensaje) */}
-                      <div className="flex gap-1.5 px-2">
-                        <button className="flex-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-[9.5px] font-extrabold py-1.5 rounded-lg transition-colors border-none cursor-pointer">
-                          Siguiendo
-                        </button>
-                        <button className="flex-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-[9.5px] font-extrabold py-1.5 rounded-lg transition-colors border-none cursor-pointer">
-                          Mensaje
-                        </button>
-                        <button className="bg-neutral-100 hover:bg-neutral-200 p-1.5 rounded-lg text-neutral-900 transition-colors flex items-center justify-center shrink-0 border-none cursor-pointer">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3" />
-                          </svg>
-                        </button>
-                      </div>
-
-                      {/* Instagram Grid Header (Tab Icons) */}
-                      <div>
-                        <div className="flex border-b border-neutral-100">
-                          <button className="flex-1 text-center py-2 text-[11px] text-neutral-900 border-b border-neutral-900 flex items-center justify-center bg-transparent cursor-pointer">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                          </button>
-                          <button className="flex-1 text-center py-2 text-[11px] text-neutral-400 flex items-center justify-center bg-transparent cursor-pointer hover:text-neutral-600">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                          </button>
-                          <button className="flex-1 text-center py-2 text-[11px] text-neutral-400 flex items-center justify-center bg-transparent cursor-pointer hover:text-neutral-600">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </button>
-                        </div>
-
-                        {/* Simulated Instagram 3-Post Grid (as requested: "le hicimos 3 publicaciones en instagram") */}
-                        <div className="grid grid-cols-3 gap-0.5 w-full pt-0.5">
-                          
-                          {/* Post 1: Torta Gimnasta / Musculosa */}
-                          <div className="aspect-square relative group bg-[#ECEAE6] overflow-hidden cursor-pointer border border-neutral-100 flex items-center justify-center shadow-sm">
-                            <div className="absolute inset-0 bg-[#E8E6E1] flex flex-col items-center justify-center p-1 text-center relative">
-                              {/* White oval cake stand */}
-                              <div className="absolute bottom-1 w-20 h-3.5 bg-white rounded-full border border-neutral-300 shadow-sm z-0"></div>
-                              
-                              {/* Black cylindrical cake */}
-                              <div className="absolute bottom-3 w-13 h-16 bg-neutral-900 border-x border-neutral-850 rounded-t-sm shadow-md z-10 flex flex-col justify-end overflow-hidden pb-1">
-                                {/* Side Stencil Spray & Bodybuilder */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  {/* White stencil paint glow */}
-                                  <div className="absolute w-10 h-10 bg-white/70 rounded-full blur-[2px] opacity-80"></div>
-                                  {/* Bodybuilder Silhouette */}
-                                  <svg viewBox="0 0 100 100" className="w-9 h-9 text-neutral-950 relative z-10" fill="currentColor">
-                                    <path d="M 50,30 C 53,30 55,27.5 55,25 C 55,22.5 53,20 50,20 C 47,20 45,22.5 45,25 C 45,27.5 47,30 50,30 Z M 32,22 C 28,22 26,26 28,29 C 29,31 31,32 33,31 C 34.5,30 35,28 35,26 L 38,33 L 44,36 L 44,48 L 39,62 L 39,80 L 47,80 L 47,62 L 53,62 L 53,80 L 61,80 L 61,62 L 56,48 L 56,36 L 62,33 L 65,26 C 65,28 65.5,30 67,31 C 69,32 71,31 72,29 C 74,26 72,22 68,22 Z" />
-                                  </svg>
-                                </div>
-
-                                {/* Blueberries / Toppings edge */}
-                                <div className="absolute top-0 inset-x-0 h-1 bg-neutral-950 flex justify-around px-0.5 z-20">
-                                  <div className="w-1 h-1 rounded-full bg-slate-900"></div>
-                                  <div className="w-1.5 h-1.5 rounded-full bg-slate-950 -mt-0.5"></div>
-                                  <div className="w-1 h-1 rounded-full bg-slate-900"></div>
-                                  <div className="w-1 h-1 rounded-full bg-slate-950"></div>
-                                </div>
-                              </div>
-
-                              {/* Toppers on Top */}
-                              {/* 40 Topper */}
-                              <span className="absolute bottom-[72px] left-[32%] font-sans font-black text-[7.5px] text-slate-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] z-20 scale-105">
-                                40
-                              </span>
-                              {/* Round cutout Happy Birthday topper */}
-                              <div className="absolute bottom-[75px] right-[28%] w-5 h-5 rounded-full border border-neutral-950 bg-neutral-950 flex items-center justify-center p-0.5 text-center leading-none z-20 shadow">
-                                <span className="text-[2.5px] font-black text-white tracking-tighter uppercase scale-75">H-BDAY</span>
-                              </div>
-                            </div>
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-30">
-                              <span>❤️ 13</span>
-                              <span>💬 0</span>
-                            </div>
-                          </div>
-
-                          {/* Post 2: Caja Regalo / Tablita / Desayuno */}
-                          <div className="aspect-square relative group bg-[#ECEAE6] overflow-hidden cursor-pointer border border-neutral-100 flex items-center justify-center shadow-sm">
-                            <div className="absolute inset-0 bg-[#E8E6E1] p-1 flex items-center justify-center relative">
-                              <div className="w-[105px] h-[105px] bg-white rounded shadow-md p-1 flex flex-col justify-between border border-neutral-300 relative overflow-hidden">
-                                {/* Kraft lining background */}
-                                <div className="absolute inset-0 bg-[#F3ECE2] opacity-90 z-0"></div>
-                                
-                                {/* Items inside Box */}
-                                <div className="relative w-full h-full z-10 grid grid-cols-12 gap-0.5">
-                                  {/* Left column: Bottle of wine */}
-                                  <div className="col-span-4 relative flex flex-col items-center justify-start pt-1">
-                                    {/* Wine bottle */}
-                                    <div className="w-4 h-15 bg-emerald-950 rounded-b-md rounded-t-sm shadow relative flex flex-col items-center justify-start rotate-[2deg]">
-                                      {/* Wine foil top */}
-                                      <div className="absolute -top-3 w-1.5 h-3 bg-red-800 rounded-t-sm"></div>
-                                      {/* Label */}
-                                      <div className="w-3 h-7 bg-white rounded-sm mt-3 flex flex-col items-center justify-center p-0.5 border border-amber-800/10 scale-95">
-                                        <span className="text-[1.5px] uppercase font-black text-rose-800 tracking-tighter leading-none scale-90">ADRY</span>
-                                        <div className="w-1.5 h-1.5 rounded-full bg-rose-400 my-0.5"></div>
-                                        <span className="text-[1px] text-neutral-500 scale-50 -mt-0.5">Pastelería</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* Right part: Food & Bento Cake */}
-                                  <div className="col-span-8 relative h-full">
-                                    {/* Green grapes */}
-                                    <div className="absolute top-0.5 left-0.5 flex flex-wrap gap-0.5 w-6">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-lime-400/90 shadow-sm"></div>
-                                      <div className="w-1.2 h-1.2 rounded-full bg-lime-300/90 shadow-sm"></div>
-                                      <div className="w-1.5 h-1.5 rounded-full bg-lime-400/90 shadow-sm"></div>
-                                      <div className="w-1.5 h-1.5 rounded-full bg-lime-300/90 shadow-sm"></div>
-                                      <div className="w-1.2 h-1.2 rounded-full bg-lime-400/90 shadow-sm"></div>
-                                    </div>
-
-                                    {/* Strawberries & Roses */}
-                                    <div className="absolute top-0.5 right-0.5 flex flex-col gap-0.5 items-end">
-                                      {/* Salami Rose 1 */}
-                                      <div className="w-4.5 h-4.5 rounded-full bg-rose-800 shadow-inner flex items-center justify-center border border-red-950/20 relative">
-                                        <div className="absolute inset-0.5 rounded-full border border-rose-900 bg-rose-700"></div>
-                                        <div className="absolute inset-1 rounded-full border border-rose-950 bg-rose-850"></div>
-                                      </div>
-                                    </div>
-
-                                    {/* Cheese slices & Ham folds */}
-                                    <div className="absolute top-5.5 left-1 flex gap-0.5">
-                                      <div className="w-3.5 h-1.5 bg-rose-200 rounded-full shadow-sm"></div>
-                                      <div className="w-3.5 h-1.5 bg-rose-300/90 rounded-full shadow-sm"></div>
-                                      <div className="w-1.2 h-2.5 bg-yellow-300 shadow-sm rotate-12"></div>
-                                    </div>
-
-                                    {/* Salami Rose 2 */}
-                                    <div className="absolute top-5 right-5.5 w-3.5 h-3.5 rounded-full bg-rose-800 shadow-inner flex items-center justify-center border border-red-950/10">
-                                      <div className="absolute inset-0.5 rounded-full border border-rose-900 bg-rose-750"></div>
-                                    </div>
-
-                                    {/* Mini Bento Cake at bottom-right */}
-                                    <div className="absolute bottom-0.5 right-0.5 w-11 h-11 rounded-full bg-white border border-neutral-300 shadow-sm flex items-center justify-center relative">
-                                      {/* Flork representation */}
-                                      <div className="relative w-9 h-9 flex items-center justify-center scale-[0.8]">
-                                        <svg viewBox="0 0 100 100" className="w-full h-full text-neutral-800" fill="none" stroke="currentColor" strokeWidth="5">
-                                          {/* Stairs graph */}
-                                          <path d="M10,80 L35,80 L35,50 L65,50 L65,25 L90,25" stroke="black" />
-                                          {/* Characters */}
-                                          <path d="M18,80 C18,68 28,68 28,80" fill="white" stroke="black" />
-                                          <path d="M44,50 C44,38 54,38 54,50" fill="white" stroke="black" />
-                                          <path d="M72,25 C72,13 82,13 82,25" fill="white" stroke="black" />
-                                        </svg>
-                                        <span className="absolute bottom-0 left-0 text-[3px] font-black text-neutral-900 scale-75">38</span>
-                                        <span className="absolute bottom-2.5 left-3.5 text-[3px] font-black text-neutral-900 scale-75">39</span>
-                                        <span className="absolute top-0.5 right-0.5 text-[3px] font-black text-neutral-900 scale-75">40</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-30">
-                              <span>❤️ 28</span>
-                              <span>💬 4</span>
-                            </div>
-                          </div>
-
-                          {/* Post 3: Princess Cake with Silver Tiara Crown */}
-                          <div className="aspect-square relative group bg-[#ECEAE6] overflow-hidden cursor-pointer border border-neutral-100 flex items-center justify-center shadow-sm">
-                            <div className="absolute inset-0 bg-[#E8E6E1] flex flex-col items-center justify-center p-1 text-center relative">
-                              {/* White oval cake stand */}
-                              <div className="absolute bottom-1 w-20 h-3.5 bg-white rounded-full border border-neutral-300 shadow-sm z-0"></div>
-
-                              {/* Tall cream cylindrical cake */}
-                              <div className="absolute bottom-3 w-13 h-17 bg-[#F6F2EB] border-x border-neutral-300 rounded-t-sm shadow-md z-10 flex flex-col justify-start pt-1.5 px-0.5 relative">
-                                {/* Pearls/Beads decoration (studded points on sides) */}
-                                <div className="absolute inset-1 pointer-events-none opacity-80">
-                                  {/* Base pearls cluster */}
-                                  <div className="absolute bottom-0.5 left-0.5 w-1 h-1 rounded-full bg-slate-300 shadow-sm"></div>
-                                  <div className="absolute bottom-1 left-2 w-1.2 h-1.2 rounded-full bg-white shadow-sm"></div>
-                                  <div className="absolute bottom-0.5 right-1 w-1 h-1 rounded-full bg-slate-300 shadow-sm"></div>
-                                  <div className="absolute bottom-2.5 right-0.5 w-1.2 h-1.2 rounded-full bg-white shadow-sm"></div>
-                                  {/* Scattered pearls */}
-                                  <div className="absolute top-2 left-1 w-0.8 h-0.8 rounded-full bg-slate-300 opacity-90"></div>
-                                  <div className="absolute top-4 right-1.5 w-1 h-1 rounded-full bg-white opacity-90"></div>
-                                  <div className="absolute top-6 left-2 w-0.8 h-0.8 rounded-full bg-slate-300"></div>
-                                </div>
-
-                                {/* Birthday Princess cursive writing */}
-                                <div className="absolute top-5.5 left-1/2 -translate-x-1/2 text-center w-full z-20 scale-90">
-                                  <span className="font-serif italic font-black text-[3.8px] text-slate-500 tracking-tighter block leading-none drop-shadow-[0_0.5px_0.5px_rgba(255,255,255,0.9)]">Birthday</span>
-                                  <span className="font-serif italic font-black text-[4.2px] text-slate-400 tracking-tighter block leading-none -mt-0.5 drop-shadow-[0_0.5px_0.5px_rgba(255,255,255,0.9)]">Princess</span>
-                                </div>
-
-                                {/* Candle behind crown */}
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-0.5 h-4.5 bg-slate-300 z-0">
-                                  <div className="absolute -top-0.8 left-1/2 -translate-x-1/2 w-0.8 h-1 bg-amber-400 rounded-full animate-pulse"></div>
-                                </div>
-
-                                {/* Silver Tiara Crown sitting on top */}
-                                <svg viewBox="0 0 100 60" className="w-8 h-5.5 text-slate-300 drop-shadow absolute -top-4.5 left-1/2 -translate-x-1/2 z-20" fill="currentColor">
-                                  <path d="M10,50 L90,50 L85,30 L70,42 L50,15 L30,42 L15,30 Z" stroke="silver" strokeWidth="2.5" />
-                                  <circle cx="50" cy="15" r="3.5" fill="white" />
-                                  <circle cx="30" cy="42" r="2.5" fill="white" />
-                                  <circle cx="70" cy="42" r="2.5" fill="white" />
-                                  <circle cx="15" cy="30" r="2.5" fill="white" />
-                                  <circle cx="85" cy="30" r="2.5" fill="white" />
-                                </svg>
-                              </div>
-                            </div>
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-30">
-                              <span>❤️ 42</span>
-                              <span>💬 2</span>
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {/* Interactive Click indicator bottom bar */}
-                    <a
-                      href="https://www.instagram.com/adrypasteleriaypanaderia/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-gradient-to-r from-[#FCAF45] via-[#E1306C] to-[#C13584] hover:opacity-90 text-white py-2 rounded-xl text-[9px] font-extrabold uppercase tracking-widest text-center no-underline block transition-all mt-2 shadow-sm"
-                    >
-                      📸 Ver en Instagram
-                    </a>
-
+                <div className="relative w-full max-w-[280px] bg-black rounded-[48px] p-3 shadow-2xl border-[6px] border-neutral-800">
+                  <div className="absolute top-5 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-full z-20"></div>
+                  <div className="relative rounded-[36px] overflow-hidden bg-white border border-neutral-200">
+                    <img src={beautyPointImg1} alt="Beauty Point - contenido real de Instagram" className="w-full h-auto block" />
                   </div>
                 </div>
               </div>
 
             </div>
 
+            {/* Two supporting real screenshots */}
+            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+              <div className="rounded-2xl overflow-hidden border border-editorial-border shadow-sm">
+                <img src={beautyPointImg2} alt="Beauty Point - publicación real" className="w-full h-auto block" />
+              </div>
+              <div className="rounded-2xl overflow-hidden border border-editorial-border shadow-sm">
+                <img src={beautyPointImg3} alt="Beauty Point - publicación real" className="w-full h-auto block" />
+              </div>
+            </div>
+
           </div>
         </section>
+
 
         {/* YouTube Video Tutorial Section */}
         <section id="tutorial" className="px-6 md:px-12 py-20 bg-editorial-light border-t border-editorial-border">
