@@ -26,7 +26,8 @@ process.on("unhandledRejection", (reason) => {
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+// Raised from the 100kb default so profile photo/logo uploads (sent as base64 data URLs) fit.
+app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);

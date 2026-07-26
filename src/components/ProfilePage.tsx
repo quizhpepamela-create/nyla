@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, Save, Loader2, Wallet, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Save, Loader2, Wallet, ExternalLink, Upload } from 'lucide-react';
 import { ViewState, StudentProfileData, EntrepreneurProfileData } from '../types';
 import { useAuth } from '../context/AuthContext';
+
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2MB
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 interface ProfilePageProps {
   setView: (view: ViewState) => void;
@@ -12,6 +23,7 @@ export default function ProfilePage({ setView }: ProfilePageProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const isStudent = user?.role === 'STUDENT';
   const studentProfile = isStudent ? (profile as StudentProfileData | null) : null;
@@ -87,6 +99,32 @@ export default function ProfilePage({ setView }: ProfilePageProps) {
     }
   }, [entrepreneurProfile]);
 
+  const handleStudentPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setImageError(null);
+    if (file.size > MAX_IMAGE_BYTES) {
+      setImageError('La imagen es muy pesada (máximo 2MB).');
+      return;
+    }
+    const dataUrl = await fileToDataUrl(file);
+    setStudentForm(f => ({ ...f, photoUrl: dataUrl }));
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setImageError(null);
+    if (file.size > MAX_IMAGE_BYTES) {
+      setImageError('La imagen es muy pesada (máximo 2MB).');
+      return;
+    }
+    const dataUrl = await fileToDataUrl(file);
+    setEntrepreneurForm(f => ({ ...f, logoUrl: dataUrl }));
+  };
+
   const handleSaveStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -146,8 +184,16 @@ export default function ProfilePage({ setView }: ProfilePageProps) {
               <input className={inputClass} value={studentForm.fullName} onChange={e => setStudentForm(f => ({ ...f, fullName: e.target.value }))} required />
             </div>
             <div>
-              <label className={labelClass}>Foto (URL)</label>
-              <input className={inputClass} value={studentForm.photoUrl} onChange={e => setStudentForm(f => ({ ...f, photoUrl: e.target.value }))} placeholder="https://..." />
+              <label className={labelClass}>Foto de perfil</label>
+              <div className="flex items-center gap-3">
+                {studentForm.photoUrl && (
+                  <img src={studentForm.photoUrl} alt="Foto" className="w-11 h-11 rounded-full object-cover border border-editorial-border shrink-0" />
+                )}
+                <label className="flex-1 inline-flex items-center justify-center gap-2 bg-editorial-bg border border-editorial-border rounded-xl p-3 text-xs font-bold text-editorial-text cursor-pointer hover:bg-editorial-light transition-all">
+                  <Upload className="w-3.5 h-3.5" /> {studentForm.photoUrl ? 'Cambiar foto' : 'Subir foto'}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleStudentPhotoUpload} />
+                </label>
+              </div>
             </div>
             <div>
               <label className={labelClass}>Universidad</label>
@@ -188,6 +234,7 @@ export default function ProfilePage({ setView }: ProfilePageProps) {
             </div>
           </div>
 
+          {imageError && <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">{imageError}</p>}
           {error && <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">{error}</p>}
 
           <button
@@ -207,8 +254,16 @@ export default function ProfilePage({ setView }: ProfilePageProps) {
               <input className={inputClass} value={entrepreneurForm.businessName} onChange={e => setEntrepreneurForm(f => ({ ...f, businessName: e.target.value }))} required />
             </div>
             <div>
-              <label className={labelClass}>Logo (URL)</label>
-              <input className={inputClass} value={entrepreneurForm.logoUrl} onChange={e => setEntrepreneurForm(f => ({ ...f, logoUrl: e.target.value }))} placeholder="https://..." />
+              <label className={labelClass}>Logo del emprendimiento</label>
+              <div className="flex items-center gap-3">
+                {entrepreneurForm.logoUrl && (
+                  <img src={entrepreneurForm.logoUrl} alt="Logo" className="w-11 h-11 rounded-full object-cover border border-editorial-border shrink-0" />
+                )}
+                <label className="flex-1 inline-flex items-center justify-center gap-2 bg-editorial-bg border border-editorial-border rounded-xl p-3 text-xs font-bold text-editorial-text cursor-pointer hover:bg-editorial-light transition-all">
+                  <Upload className="w-3.5 h-3.5" /> {entrepreneurForm.logoUrl ? 'Cambiar logo' : 'Subir logo'}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                </label>
+              </div>
             </div>
             <div>
               <label className={labelClass}>Categoría</label>
@@ -251,6 +306,7 @@ export default function ProfilePage({ setView }: ProfilePageProps) {
             </div>
           </div>
 
+          {imageError && <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">{imageError}</p>}
           {error && <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">{error}</p>}
 
           <button
