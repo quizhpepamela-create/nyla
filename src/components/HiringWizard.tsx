@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, ChevronRight, Sparkles, Shield, ArrowLeft, CheckCircle2, PenTool, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, ViewState, MatchCandidate, EntrepreneurProfileData } from '../types';
-import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout, estimateCustomDeliverables, MIN_PROJECT_HOURS, MAX_PROJECT_HOURS } from '../constants';
+import { STUDENT_HOURLY_RATE, NYLA_FIXED_FEE, PROJECT_PACKAGES, calculatePVP, calculateStudentPayout } from '../constants';
 import { useAuth } from '../context/AuthContext';
 
 interface HiringWizardProps {
@@ -74,10 +74,9 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
   const [projectDesc, setProjectDesc] = useState('');
   const [requiredCareer, setRequiredCareer] = useState('Diseño Gráfico y Publicidad');
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
-  const [selectedPackageId, setSelectedPackageId] = useState<'simple' | 'intermedio' | 'elaborado' | 'custom'>('intermedio');
-  const [customHours, setCustomHours] = useState(MAX_PROJECT_HOURS);
-  const selectedPackage = PROJECT_PACKAGES.find(p => p.id === selectedPackageId);
-  const estimatedHours = selectedPackage ? selectedPackage.hours : customHours;
+  const [selectedPackageId, setSelectedPackageId] = useState<'basico' | 'intermedio' | 'avanzado'>('intermedio');
+  const selectedPackage = PROJECT_PACKAGES.find(p => p.id === selectedPackageId)!;
+  const estimatedHours = selectedPackage.hours;
   const hourlyRate = STUDENT_HOURLY_RATE;
   const [entrepreneurName, setEntrepreneurName] = useState(businessName);
   const [signatureText, setSignatureText] = useState('');
@@ -685,11 +684,11 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
             <div className="space-y-6">
               <div className="border-b border-editorial-border pb-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-editorial-accent">Paso 2 de 4</span>
-                <h3 className="text-2xl font-serif font-black text-editorial-text mt-1">Elige un Paquete de Servicio</h3>
-                <p className="text-xs text-editorial-muted mt-1">NYLA cobra una comisión fija de ${NYLA_FIXED_FEE.toFixed(2)} USD por proyecto; el estudiante cobra ${hourlyRate.toFixed(2)} USD por hora.</p>
+                <h3 className="text-2xl font-serif font-black text-editorial-text mt-1">Elige un Plan Mensual</h3>
+                <p className="text-xs text-editorial-muted mt-1">NYLA cobra una comisión fija de ${NYLA_FIXED_FEE.toFixed(2)} USD por plan; el estudiante cobra ${hourlyRate.toFixed(2)} USD por hora de gestión mensual.</p>
               </div>
 
-              {/* Package selector */}
+              {/* Plan selector */}
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {PROJECT_PACKAGES.map(pkg => {
@@ -705,10 +704,10 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                             : 'bg-editorial-bg/30 border-editorial-border hover:bg-editorial-bg/60'
                         }`}
                       >
-                        <p className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>{pkg.hours} {pkg.hours === 1 ? 'hora' : 'horas'}</p>
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>{pkg.hours} horas / mes</p>
                         <p className="font-serif font-black text-base">{pkg.label}</p>
-                        <p className={`text-lg font-serif font-black ${isSelected ? 'text-editorial-bg' : 'text-editorial-text'}`}>${calculatePVP(pkg.hours).toFixed(2)}</p>
-                        <p className={`text-[10px] ${isSelected ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Estudiante recibe ${calculateStudentPayout(pkg.hours).toFixed(2)}</p>
+                        <p className={`text-lg font-serif font-black ${isSelected ? 'text-editorial-bg' : 'text-editorial-text'}`}>${calculatePVP(pkg.hours).toFixed(2)} <span className="text-[10px] font-sans font-normal">/ mes</span></p>
+                        <p className={`text-[10px] ${isSelected ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Estudiante recibe ${calculateStudentPayout(pkg.hours).toFixed(2)}/mes</p>
                         <ul className={`text-[9px] leading-relaxed pt-1.5 mt-1.5 border-t space-y-0.5 ${isSelected ? 'border-editorial-bg/20 text-editorial-bg/85' : 'border-editorial-border text-editorial-muted'}`}>
                           {pkg.includes.map((item, idx) => (
                             <li key={idx}>• {item}</li>
@@ -718,39 +717,6 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                     );
                   })}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedPackageId('custom')}
-                  className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer ${
-                    selectedPackageId === 'custom'
-                      ? 'bg-editorial-text text-editorial-bg border-editorial-text shadow-sm'
-                      : 'bg-editorial-bg/30 border-editorial-border hover:bg-editorial-bg/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-serif font-black text-sm">Personalizado</p>
-                      <p className={`text-[10px] ${selectedPackageId === 'custom' ? 'text-editorial-bg/70' : 'text-editorial-muted'}`}>Elige entre {MIN_PROJECT_HOURS} y {MAX_PROJECT_HOURS} horas — es el máximo que un estudiante puede dedicar a un solo proyecto en NYLA.</p>
-                    </div>
-                    {selectedPackageId === 'custom' && (
-                      <input
-                        type="number"
-                        min={MIN_PROJECT_HOURS}
-                        max={MAX_PROJECT_HOURS}
-                        value={customHours}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => setCustomHours(Math.max(MIN_PROJECT_HOURS, Math.min(MAX_PROJECT_HOURS, Number(e.target.value))))}
-                        className="w-20 bg-white text-editorial-text border border-editorial-border rounded-xl p-2 text-xs text-center font-bold"
-                      />
-                    )}
-                  </div>
-                  {selectedPackageId === 'custom' && (
-                    <p className="text-[9px] text-editorial-bg/85 leading-relaxed pt-2 mt-2 border-t border-editorial-bg/20">
-                      {estimateCustomDeliverables(customHours)}
-                    </p>
-                  )}
-                </button>
               </div>
 
               {/* Business Model breakdown */}
@@ -759,11 +725,11 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
 
                 <div className="border border-editorial-border rounded-2xl p-5 space-y-2.5 bg-white text-xs">
                   <div className="flex justify-between items-center">
-                    <span className="text-editorial-muted">Horas del proyecto:</span>
-                    <span className="font-semibold">{estimatedHours} {estimatedHours === 1 ? 'hora' : 'horas'} × ${hourlyRate.toFixed(2)}/h</span>
+                    <span className="text-editorial-muted">Horas de gestión al mes:</span>
+                    <span className="font-semibold">{estimatedHours}h × ${hourlyRate.toFixed(2)}/h</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-editorial-muted">Pago al estudiante:</span>
+                    <span className="text-editorial-muted">Pago al estudiante (mensual):</span>
                     <span className="font-semibold text-editorial-accent">${modelMath.studentNetEarnings.toFixed(2)} USD</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-editorial-border pb-2.5">
@@ -771,12 +737,12 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                     <span className="font-semibold">${modelMath.commissionAmount.toFixed(2)} USD</span>
                   </div>
                   <div className="flex justify-between items-center text-sm font-serif font-black pt-1 text-editorial-text">
-                    <span>Total a pagar (Emprendedor):</span>
+                    <span>Total a pagar (Emprendedor, mensual):</span>
                     <span>${modelMath.rawTotal.toFixed(2)} USD</span>
                   </div>
                 </div>
                 <p className="text-[9px] text-editorial-muted leading-relaxed italic">
-                  *La comisión de NYLA es siempre ${NYLA_FIXED_FEE.toFixed(2)} USD, sin importar las horas del proyecto. Los fondos permanecen en garantía segura (Escrow) hasta la entrega aprobada.
+                  *La comisión de NYLA es siempre ${NYLA_FIXED_FEE.toFixed(2)} USD, sin importar el plan elegido. Los fondos permanecen en garantía segura (Escrow) hasta la entrega aprobada del mes.
                 </p>
               </div>
             </div>
@@ -832,7 +798,7 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                 <div className="space-y-2">
                   <p className="font-bold">CLÁUSULA CUARTA: PLAZO DE ENTREGA</p>
                   <p>
-                    El plazo de ejecución pactado inicia de forma inmediata a la acreditación del depósito en garantía y concluirá de manera ordinaria en un plazo estimado de {estimatedHours <= 5 ? `${estimatedHours} ${estimatedHours === 1 ? 'hora' : 'horas'} (Inmediato)` : `${Math.max(1, Math.round(estimatedHours / 10))} semanas`}.
+                    El plan contratado tiene una duración de <strong>1 mes calendario</strong> de gestión ({estimatedHours} horas totales), iniciando de forma inmediata a la acreditación del depósito en garantía.
                   </p>
                 </div>
 
@@ -987,10 +953,8 @@ export default function HiringWizard({ setView, onContractCreated, preselectedSt
                   <span className="font-bold text-editorial-text truncate max-w-[150px]" title={projectTitle}>{projectTitle}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-editorial-muted">Duración Estimada:</span>
-                  <span className="font-bold text-editorial-text">
-                    {estimatedHours <= 5 ? `${estimatedHours} ${estimatedHours === 1 ? 'hora' : 'horas'} (Inmediato)` : `${Math.max(1, Math.round(estimatedHours / 10))} sem`} ({estimatedHours}h)
-                  </span>
+                  <span className="text-editorial-muted">Duración del Plan:</span>
+                  <span className="font-bold text-editorial-text">1 mes ({estimatedHours}h)</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-editorial-muted">Tarifa por hora:</span>
