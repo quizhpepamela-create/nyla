@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../db";
 import { requireAuth } from "../auth";
+import { calculateStudentPayout } from "../../constants";
 
 const router = Router();
 
@@ -27,10 +28,12 @@ router.get("/me", requireAuth, async (req, res) => {
     const [appliedCount, activeCount, completedProjects] = await Promise.all([
       prisma.application.count({ where: { studentId: userId } }),
       prisma.project.count({ where: { studentId: userId, status: "IN_PROGRESS" } }),
-      prisma.project.findMany({ where: { studentId: userId, status: "COMPLETED" }, select: { budget: true } }),
+      prisma.project.findMany({ where: { studentId: userId, status: "COMPLETED" }, select: { estimatedHours: true } }),
     ]);
-    const earningsCount = Number(completedProjects.reduce((sum, p) => sum + p.budget * 0.8, 0).toFixed(2));
-    return res.json({ appliedCount, activeCount, earningsCount });
+    const earningsCount = Number(
+      completedProjects.reduce((sum, p) => sum + calculateStudentPayout(p.estimatedHours), 0).toFixed(2)
+    );
+    return res.json({ appliedCount, activeCount, completedCount: completedProjects.length, earningsCount });
   }
 
   if (role === "ENTREPRENEUR") {
@@ -40,7 +43,7 @@ router.get("/me", requireAuth, async (req, res) => {
       prisma.project.findMany({ where: { entrepreneurId: userId, status: "COMPLETED" }, select: { budget: true } }),
     ]);
     const spentCount = Number(completedProjects.reduce((sum, p) => sum + p.budget, 0).toFixed(2));
-    return res.json({ postedCount, activeCount, spentCount });
+    return res.json({ postedCount, activeCount, completedCount: completedProjects.length, spentCount });
   }
 
   res.json({});

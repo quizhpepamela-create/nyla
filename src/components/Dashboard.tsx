@@ -13,6 +13,7 @@ interface DashboardProps {
 interface MeStats {
   appliedCount?: number;
   activeCount?: number;
+  completedCount?: number;
   earningsCount?: number;
   postedCount?: number;
   spentCount?: number;
@@ -315,7 +316,7 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
       </header>
 
       {/* Stats Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
         {isStudent ? (
           <>
             <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
@@ -335,6 +336,15 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
                 </div>
               </div>
               <div className="text-5xl font-serif font-black text-editorial-text">{String(stats.activeCount ?? 0).padStart(2, '0')}</div>
+            </div>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Proyectos Completados</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <BadgeCheck className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-5xl font-serif font-black text-editorial-text">{String(stats.completedCount ?? 0).padStart(2, '0')}</div>
             </div>
             <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
               <div className="flex items-center justify-between mb-4">
@@ -365,6 +375,15 @@ export default function Dashboard({ setView, onOpenNewProject }: DashboardProps)
                 </div>
               </div>
               <div className="text-5xl font-serif font-black text-editorial-text">{String(stats.activeCount ?? 0).padStart(2, '0')}</div>
+            </div>
+            <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-editorial-muted">Proyectos Completados</span>
+                <div className="w-10 h-10 rounded-full bg-editorial-text/5 flex items-center justify-center text-editorial-text">
+                  <BadgeCheck className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-5xl font-serif font-black text-editorial-text">{String(stats.completedCount ?? 0).padStart(2, '0')}</div>
             </div>
             <div className="bg-editorial-bg p-6 rounded-[24px] border border-editorial-border flex flex-col justify-between hover:bg-editorial-light/40 transition-colors">
               <div className="flex items-center justify-between mb-4">
